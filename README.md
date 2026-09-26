@@ -5,9 +5,12 @@
 ## ความต้องการของระบบ
 
 - Windows 10 หรือ Windows 11
-- JetBrains Rider (ใช้ได้โดยไม่มีค่าใช้จ่ายสำหรับงานที่ไม่ใช่เชิงพาณิชย์)
-- Microsoft Visual C++ Build Tools พร้อมเวิร์กโหลด "Desktop development with C++"
 - Unreal Engine 5.8 (ตั้งแต่บทที่ 2 เป็นต้นไป)
+- JetBrains Rider 2026.x หรือใหม่กว่า (ใช้ได้โดยไม่มีค่าใช้จ่ายสำหรับงานที่ไม่ใช่เชิงพาณิชย์)
+- Microsoft Visual C++ Build Tools ตามองค์ประกอบใน `HAPBook/.vsconfig`
+- .NET runtime รุ่นที่ UnrealBuildTool ของ UE 5.8 ต้องการ ตรวจสอบรุ่นที่ต้องการได้จากค่า `framework.version` ในไฟล์ `Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.runtimeconfig.json` ของเอนจิน แล้วเทียบกับผลของคำสั่ง `dotnet --list-runtimes` หากไม่มีรุ่นหลักที่ตรงกัน ให้ดูวิธีแก้ในหัวข้อ "ปัญหาที่พบบ่อย" ของ `docs/ch02.md`
+
+การเปิดโปรเจกต์ Unreal ทำโดยเปิดไฟล์ `HAPBook.uproject` ด้วย Rider โดยตรง ไฟล์โซลูชันที่เอนจินสร้างขึ้นเป็นทางเลือกสำรองเท่านั้น
 
 ชุดโค้ดประกอบทั้งหมดได้รับการทดสอบบนสภาพแวดล้อมข้างต้นเท่านั้น ซึ่งเป็นสภาพแวดล้อมเดียวกับที่ใช้ทดสอบเนื้อหาในงานเขียน
 
