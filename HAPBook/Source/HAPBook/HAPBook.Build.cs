@@ -15,6 +15,8 @@ public class HAPBook : ModuleRules
 			"InputCore",
 			"EnhancedInput",
 			"AIModule",
+			"NavigationSystem",
+			"GameplayTasks",
 			"StateTreeModule",
 			"GameplayStateTreeModule",
 			"UMG",
