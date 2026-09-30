@@ -30,6 +30,9 @@ ch01-cpp/        บทที่ 1: C++ มาตรฐาน เปิดด้
 HAPBook/         บทที่ 2 เป็นต้นไป: โปรเจกต์ Unreal Engine 5.8 หนึ่งโปรเจกต์ที่เติบโตทีละบท
   Content/Maps/L_ChNN   แผนที่ประจำบท: Actor สาธิตของบทนั้นวางไว้แล้ว เปิดแล้วกด Play ได้ทันที
   Content/Maps/L_Book   พื้นเปล่าสำหรับใช้เป็นแม่แบบ ไม่มี Actor สาธิต
+  Content/ThirdPerson/  แผนที่และ Blueprint ของเทมเพลต Third Person (ใช้ตั้งแต่บทที่ 7)
+  Source/HAPBook/       คลาส C++ ของงานเขียน (ที่ราก) เคียงข้าง AHAPBookCharacter/GameMode/PlayerController ของเทมเพลต
+  */Variant_*/          ตัวอย่างแนวเกมของ Epic (Combat, Platforming, SideScrolling) ไม่ใช้ในงานเขียน
 docs/chNN.md     คู่มือประจำบท
 ```
 
@@ -39,7 +42,7 @@ docs/chNN.md     คู่มือประจำบท
 
 ## หลักการ: หนึ่งโปรเจกต์ที่เติบโตทีละบท
 
-`HAPBook/` เป็นโปรเจกต์ Unreal Engine ที่เล็กที่สุดเท่าที่จะทำได้ (เทมเพลต Blank C++ ไม่มี Starter Content) และแต่ละบทคือรากฐานของบทถัดไป โปรเจกต์บรรจุเนื้อหาเทมเพลต Third Person ของ Epic ไว้ตั้งแต่แท็กแรก (โฟลเดอร์ `Content/ThirdPerson/`, `Content/Characters/`, `Content/Input/`, `Content/LevelPrototyping/` และ `Content/Variant_*/` พร้อม Blueprint `BP_ThirdPerson*`) เนื้อหาส่วนนี้ใช้ตั้งแต่ส่วนที่ 3 (บทที่ 7) เป็นต้นไปเพื่อให้มีตัวละครที่ควบคุมได้ และไม่เกี่ยวข้องกับบทที่ 2–6 ซึ่งใช้พื้นเปล่า `L_Book` เท่านั้น ระบบปัญญาประดิษฐ์ในงานเขียนถูกสร้างขึ้นทีละส่วนตั้งแต่บทที่ 7 ถึงบทที่ 13 บนโปรเจกต์เดียวกันนี้
+`HAPBook/` คือโปรเจกต์ที่สร้างจากเทมเพลต **Third Person (C++)** ของ Epic ใน Unreal Engine 5.8 ตามที่ได้จากหน้าต่างสร้างโปรเจกต์โดยไม่ดัดแปลง (ไม่มี Starter Content) เพิ่มเพียงพื้นเปล่า `Content/Maps/L_Book` และแต่ละบทคือรากฐานของบทถัดไป เทมเพลตให้คลาส C++ สามคลาสที่รากของโมดูล ได้แก่ `AHAPBookCharacter`, `AHAPBookGameMode` และ `AHAPBookPlayerController` พร้อม Blueprint ลูกของแต่ละคลาสใน `Content/ThirdPerson/Blueprints/` (`BP_ThirdPersonCharacter`, `BP_ThirdPersonGameMode`, `BP_ThirdPersonPlayerController`) และแผนที่ `Content/ThirdPerson/Lvl_ThirdPerson` ซึ่งเป็นตัวอย่างของแนวทาง Hybrid Architecture Pattern ในตัวเอง (คลาสฐานเป็น C++ คลาสลูกเป็น Blueprint) เนื้อหาส่วนนี้ใช้ตั้งแต่ส่วนที่ 3 (บทที่ 7) เป็นต้นไปเพื่อให้มีตัวละครที่ควบคุมได้ ส่วนบทที่ 2–6 ใช้พื้นเปล่า `L_Book` เท่านั้น โฟลเดอร์ `Source/HAPBook/Variant_Combat/`, `Variant_Platforming/`, `Variant_SideScrolling/` และ `Content/Variant_*/` เป็นตัวอย่างแนวเกมสามแบบที่ Epic แถมมากับเทมเพลต ไม่ได้ใช้ในงานเขียน คลาสของงานเขียนทุกคลาสอยู่ที่รากของ `Source/HAPBook/` เคียงข้างคลาสของเทมเพลต ระบบปัญญาประดิษฐ์ในงานเขียนถูกสร้างขึ้นทีละส่วนตั้งแต่บทที่ 7 ถึงบทที่ 13 บนโปรเจกต์เดียวกันนี้
 
 สถานะของโปรเจกต์เมื่อสิ้นสุดแต่ละบทคือแท็ก git ชื่อ `chNN` ซึ่งรับได้สองรูปแบบ
 
