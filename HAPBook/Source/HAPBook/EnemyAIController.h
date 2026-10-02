@@ -1,6 +1,6 @@
 // บทที่ 7 — ศัตรูตัวแรก: ส่วนสั่งการ (Mind) ของ AI
 // AAIController เป็น Actor ที่ไม่มีตัวตนทางกายภาพ ทำหน้าที่เข้าควบคุม (Possess) AEnemyCharacter
-// แล้วรัน Behavior Tree โดยใช้ Blackboard เป็นหน่วยความจำร่วม ใช้เฉพาะโหนดสำเร็จรูปของเอนจิน (โหนดที่เขียนเองคือบทที่ 10)
+// แล้วรัน Behavior Tree โดยใช้ Blackboard เป็นหน่วยความจำร่วม ใช้เฉพาะ Node สำเร็จรูปของเอนจิ้น (Node ที่เขียนเองคือบทที่ 10)
 
 #pragma once
 
@@ -14,14 +14,14 @@ class HAPBOOK_API AEnemyAIController : public AAIController
 	GENERATED_BODY()
 
 public:
-	// ชื่อคีย์ชนิด Vector ใน BB_Enemy ที่โหนด Move To อ่านเป็นจุดหมาย
+	// ชื่อคีย์ชนิด Vector ใน BB_Enemy ที่ Node Move To อ่านเป็นจุดหมาย
 	static const FName PatrolLocationKey;
 
 protected:
 	// เรียกเมื่อ Controller เข้าควบคุม Pawn: ผูก Blackboard, เขียนจุดแรก, เริ่ม Behavior Tree
 	virtual void OnPossess(APawn* InPawn) override;
 
-	// เรียกเมื่อคำขอเคลื่อนที่ปัจจุบันจบลง (รวมถึงคำขอที่โหนด Move To ของ Behavior Tree เป็นผู้สั่ง)
+	// เรียกเมื่อคำขอเคลื่อนที่ปัจจุบันจบลง (รวมถึงคำขอที่ Node Move To ของ Behavior Tree เป็นผู้สั่ง)
 	virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
 
 private:

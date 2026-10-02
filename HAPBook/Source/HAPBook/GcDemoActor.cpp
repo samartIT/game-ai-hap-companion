@@ -30,7 +30,7 @@ void AGcDemoActor::BeginPlay()
 		IsValid(TrackedData) ? TEXT("valid") : TEXT("INVALID"),
 		UntrackedWatcher.IsValid() ? TEXT("valid") : TEXT("INVALID"));
 
-	// ขอให้เอนจินเก็บกวาดแบบเต็ม (Full Purge) ในโอกาสถัดไป คือรอบ Tick ของเฟรมถัดไป
+	// ขอให้เอนจิ้นเก็บกวาดแบบเต็ม (Full Purge) ในโอกาสถัดไป คือรอบ Tick ของเฟรมถัดไป
 	// จึงรายงานผลผ่านตัวจับเวลา ไม่รายงานทันทีในเฟรมนี้
 	GEngine->ForceGarbageCollection(true);
 	GetWorld()->GetTimerManager().SetTimer(
@@ -41,7 +41,7 @@ void AGcDemoActor::ReportAfterCollection()
 {
 	// ฝั่ง Tracked: IsValid(TObjectPtr ที่มี UPROPERTY) ปลอดภัย เพราะ GC จะตั้งค่าเป็น null ให้หากวัตถุถูกทำลาย
 	// ฝั่ง Untracked: ต้องถามผ่าน TWeakObjectPtr::IsValid() เท่านั้น
-	// ห้ามเก็บ Raw Pointer ไว้แล้วเรียก IsValid(Raw) เพราะพอยน์เตอร์นั้นชี้ไปยังหน่วยความจำที่คืนแล้ว (Dangling)
+	// ห้ามเก็บ Raw Pointer ไว้แล้วเรียก IsValid(Raw) เพราะ Pointer นั้นชี้ไปยังหน่วยความจำที่คืนแล้ว (Dangling)
 	UE_LOG(LogTemp, Log, TEXT("[GC] After collection: Tracked=%s, Untracked=%s"),
 		IsValid(TrackedData) ? TEXT("valid") : TEXT("INVALID"),
 		UntrackedWatcher.IsValid() ? TEXT("valid") : TEXT("INVALID"));

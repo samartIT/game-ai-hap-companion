@@ -7,7 +7,7 @@ AReflectionDemoActor::AReflectionDemoActor()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	// คอนสตรัคเตอร์ห้ามแตะ World: ครั้งแรกที่ทำงานคือตอนสร้าง CDO ขณะโหลดโมดูล ซึ่งยังไม่มี World
+	// Constructor ห้ามแตะ World: ครั้งแรกที่ทำงานคือตอนสร้าง CDO ขณะโหลดโมดูล ซึ่งยังไม่มี World
 	// IsTemplate() เป็น true สำหรับ CDO และเป็น false สำหรับอินสแตนซ์ที่วางในฉาก
 	UE_LOG(LogTemp, Log, TEXT("[Reflection] Constructor: %s (IsTemplate=%s)"),
 		*GetClass()->GetName(), IsTemplate() ? TEXT("true") : TEXT("false"));

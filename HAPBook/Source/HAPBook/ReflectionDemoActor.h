@@ -1,4 +1,4 @@
-// บทที่ 4 — Actor สาธิตระบบ Reflection: คอนสตรัคเตอร์กับ CDO และการไล่อ่าน UPROPERTY ของตนเอง
+// บทที่ 4 — Actor สาธิตระบบ Reflection: Constructor กับ CDO และการไล่อ่าน UPROPERTY ของตนเอง
 
 #pragma once
 
@@ -12,7 +12,7 @@ class HAPBOOK_API AReflectionDemoActor : public AActor
 	GENERATED_BODY()
 
 public:
-	// คอนสตรัคเตอร์ทำงานทั้งตอนสร้าง CDO (IsTemplate=true) และตอนสร้างอินสแตนซ์จริง (IsTemplate=false)
+	// Constructor ทำงานทั้งตอนสร้าง CDO (IsTemplate=true) และตอนสร้างอินสแตนซ์จริง (IsTemplate=false)
 	AReflectionDemoActor();
 
 	// สมาชิกสามตัวต่อไปนี้ถูก UHT ลงทะเบียนในระบบ Reflection

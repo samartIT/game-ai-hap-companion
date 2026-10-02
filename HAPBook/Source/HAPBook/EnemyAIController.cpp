@@ -27,7 +27,7 @@ void AEnemyAIController::OnPossess(APawn* InPawn)
 		return;
 	}
 
-	// 2. เขียนจุดแรกก่อนเริ่มต้นไม้ เพื่อให้โหนด Move To แรกอ่านคีย์ที่มีค่าแล้ว
+	// 2. เขียนจุดแรกก่อนเริ่ม Behavior Tree เพื่อให้ Node Move To แรกอ่านคีย์ที่มีค่าแล้ว
 	CurrentPatrolIndex = 0;
 	WriteCurrentPatrolLocation();
 
@@ -55,12 +55,16 @@ void AEnemyAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFoll
 		return;
 	}
 
+	// กฎคงที่ (บันทึกจากการถดถอยของบทที่ 12): ทุกคำขอที่สำเร็จของกิ่งลาดตระเวนต้องมาถึงบรรทัดนี้
+	// บทที่เพิ่มกิ่งอื่นในภายหลังต้องจำแนกการมาถึงจาก "จุดหมายของคำขอที่เพิ่งจบ" (คีย์ Blackboard + ตำแหน่ง Pawn)
+	// ไม่ใช่จากสวิตช์โหมดของตัวละคร เพราะ Selector อาจตกมากิ่งลาดตระเวนขณะสวิตช์นั้นยังเปิดอยู่
+	// และ UPathFollowingComponent::OnPathFinished() ล้างเส้นทางก่อนแจ้ง OnMoveCompleted() จึงอ่านจุดหมายจากเส้นทางไม่ได้
 	const int32 Count = Enemy->PatrolPoints.Num();
 	// ผลที่คาด: LogTemp: [AI] Reached waypoint 1 of 3 (แล้ว 2 of 3, 3 of 3, วนกลับ 1 of 3 ...)
 	UE_LOG(LogTemp, Log, TEXT("[AI] Reached waypoint %d of %d"), CurrentPatrolIndex + 1, Count);
 
 	CurrentPatrolIndex = (CurrentPatrolIndex + 1) % Count;   // วนกลับไปจุดแรกหลังจุดสุดท้าย
-	WriteCurrentPatrolLocation();                             // โหนด Move To รอบถัดไปอ่านค่าใหม่นี้
+	WriteCurrentPatrolLocation();                             // Node Move To รอบถัดไปอ่านค่าใหม่นี้
 }
 
 void AEnemyAIController::WriteCurrentPatrolLocation()

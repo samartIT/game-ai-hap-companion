@@ -1,5 +1,5 @@
 // บทที่ 7 — ศัตรูตัวแรก: ส่วนกายภาพ (Body) ของ AI
-// สืบทอดจาก ACharacter โดยตรง ไม่ใช่จาก AHAPBookCharacter: คลาสผู้เล่นของเทมเพลตผูกกล้อง (SpringArm/Camera)
+// สืบทอดจาก ACharacter โดยตรง ไม่ใช่จาก AHAPBookCharacter: คลาสผู้เล่นของ Template ผูกกล้อง (SpringArm/Camera)
 // และ Enhanced Input ไว้ ซึ่งศัตรูต้องไม่สืบทอด ตามแนวทาง HAP รากฐานของศัตรูคือคลาส C++ ของตนเอง
 // ส่วนโมเดล Mannequin และ Animation Blueprint เป็นชั้นตรรกะระดับสูง กำหนดใน Blueprint ลูก (BP_Enemy)
 
@@ -20,7 +20,7 @@ public:
 	AEnemyCharacter();
 
 	// Behavior Tree ที่ AEnemyAIController จะรันเมื่อเข้าควบคุมร่างนี้
-	// EditDefaultsOnly: กำหนดใน Class Defaults ของ BP_Enemy (C++ ไม่อ้างอิงแอสเซ็ตโดยตรง ตามแบบแผนของเทมเพลต)
+	// EditDefaultsOnly: กำหนดใน Class Defaults ของ BP_Enemy (C++ ไม่อ้างอิง Asset โดยตรง ตามแบบแผนของ Template)
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	TObjectPtr<UBehaviorTree> BehaviorTreeAsset;
 

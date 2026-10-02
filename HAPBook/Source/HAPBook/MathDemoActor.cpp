@@ -45,7 +45,7 @@ void AMathDemoActor::BeginPlay()
 
 	// 6. Line Trace ดิ่งลงด้านล่างบนช่อง Visibility โดยละเว้นตัวเอง
 	// ผลที่คาด: LogTemp: [Math] TraceDown: Hit=true Distance=100.50
-	// (ชนผิวการชนของพื้นที่ Z = -0.5 ไม่ใช่ผิวของโมเดลที่ Z = 0 ค่าที่เอนจินวัดได้คือค่าที่เชื่อถือ)
+	// (ชนผิวการชนของพื้นที่ Z = -0.5 ไม่ใช่ผิวของโมเดลที่ Z = 0 ค่าที่เอนจิ้นวัดได้คือค่าที่เชื่อถือ)
 	const FVector TraceEnd = MyLocation + FVector::DownVector * TraceLength;
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(MathDemoTrace), false, this);
 	FHitResult Hit;
