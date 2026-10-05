@@ -1,4 +1,4 @@
-// บทที่ 7 — การนิยาม AEnemyAIController (บทที่ 8 และ 11 เพิ่มส่วนที่กำกับว่า "บทที่ 8" / "บทที่ 11")
+// บทที่ 7 — การนิยาม AEnemyAIController (บทที่ 8, 11 และ 12 เพิ่มส่วนที่กำกับว่า "บทที่ 8" / "บทที่ 11" / "บทที่ 12")
 
 #include "EnemyAIController.h"
 #include "EnemyCharacter.h"
@@ -12,12 +12,17 @@
 #include "Perception/AISense_Hearing.h"
 #include "Kismet/GameplayStatics.h"            // GetPlayerPawn (บรรทัด Teams เท่านั้น)
 #include "TimerManager.h"
+#include "DrawDebugHelpers.h"                  // บทที่ 12: ทรงกลมดีบัก (เครื่องมือวัด)
 
 const FName AEnemyAIController::PatrolLocationKey(TEXT("PatrolLocation"));
 const FName AEnemyAIController::AlertedKey(TEXT("Alerted"));
 const FName AEnemyAIController::AlertLocationKey(TEXT("AlertLocation"));
 const FName AEnemyAIController::TargetActorKey(TEXT("TargetActor"));
 const FName AEnemyAIController::LastKnownLocationKey(TEXT("LastKnownLocation"));
+const FName AEnemyAIController::TacticalLocationKey(
+	TEXT("TacticalLocation"));
+const FName AEnemyAIController::SearchLocationKey(
+	TEXT("SearchLocation"));
 
 namespace
 {
@@ -96,9 +101,37 @@ void AEnemyAIController::OnPossess(APawn* InPawn)
 	// 2c. บทที่ 11: เปิด Listener เฉพาะอินสแตนซ์ที่กาไว้ในแผนที่ (L_Ch07–L_Ch10 ไม่กา: Listener ถูกถอน ไม่มี Line Trace ไม่มีบรรทัดใดเพิ่ม)
 	SetPerceptionActive(Enemy->bPerceptionEnabled);
 
+	// 2d. บทที่ 12: ผู้สังเกตคีย์ผลของ EQS (มีเฉพาะใน BB_Enemy_EQS)
+	//     BB_Enemy ของบทที่ 7–11 ไม่มีคีย์ทั้งสอง: ข้ามไป ไม่มีบรรทัด
+	const FName QueryKeys[] =
+		{ TacticalLocationKey, SearchLocationKey };
+	bool bObservesQueries = false;
+	for (const FName& Key : QueryKeys)
+	{
+		const FBlackboard::FKey KeyId =
+			BlackboardComp->GetKeyID(Key);
+		if (KeyId == FBlackboard::InvalidKey)
+		{
+			continue;
+		}
+		BlackboardComp->RegisterObserver(KeyId, this,
+			FOnBlackboardChangeNotification::CreateUObject(
+				this, &AEnemyAIController::OnQueryResultChanged));
+		bObservesQueries = true;
+	}
+	if (bObservesQueries)
+	{
+		// ผลที่คาด: LogTemp: [EQS] BT_Enemy_EQS: observing query results
+		UE_LOG(LogTemp, Log,
+			TEXT("[EQS] %s: observing query results"),
+			*Enemy->BehaviorTreeAsset->GetName());
+	}
+
 	// 3. เริ่ม Behavior Tree (BT_Enemy: Selector -> [Chase: TargetActor Is Set (Both) -> Move To(TargetActor) -> Wait 0.5]
 	//                                               | [Investigate: Alerted Is Set -> Move To(AlertLocation) -> Wait 2.0]
 	//                                               | [Face (บทที่ 9)] | [Sequence -> Move To(PatrolLocation) -> Wait 1.0] )
+	//    บทที่ 12: อินสแตนซ์ใน L_Ch12 ตั้ง BT_Enemy_EQS (สำเนาของ BT_Enemy: Engage แทน Chase,
+	//    Investigate มีการค้นหาจุดซ่อน) ส่วน BT_Enemy ไม่เปลี่ยน
 	RunBehaviorTree(Enemy->BehaviorTreeAsset);
 
 	// ผลที่คาด: LogTemp: [AI] Possessed BP_Enemy_C: 3 patrol points, Behavior Tree running
@@ -315,13 +348,29 @@ void AEnemyAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFoll
 		return;
 	}
 
+	// บทที่ 12: การถึงจุดยืนของ Engage ไม่เลื่อนจุดลาดตระเวน
+	// กิ่ง Engage วน Run EQS Query -> Move To -> Wait ต่อจนกว่า Sight จะรายงานว่าหาย
+	if (WasTacticalArrival())
+	{
+		return;
+	}
+
 	// บทที่ 8: การมาถึง AlertLocation ไม่เลื่อนจุดลาดตระเวน และล้าง Alerted ให้ Decorator เห็นค่าเท็จ
 	// (ด้วย Observer Aborts แบบ Lower Priority Decorator ไม่ยุติกิ่งของตนเอง Wait 2.0 จึงเล่นจนจบ แล้ว Selector ตกไปกิ่งลาดตระเวน)
+	// บทที่ 12: กลไกเดียวกันนี้ทำให้การค้นหาจุดซ่อนของ BT_Enemy_EQS ทำงานต่อหลังบรรทัดนี้
 	if (WasInvestigateArrival())
 	{
 		GetBlackboardComponent()->ClearValue(AlertedKey);
 		// ผลที่คาด: LogTemp: [BT] Investigate: reached AlertLocation, Alerted cleared
 		UE_LOG(LogTemp, Log, TEXT("[BT] Investigate: reached AlertLocation, Alerted cleared"));
+		return;
+	}
+
+	// บทที่ 12: การถึงจุดซ่อนไม่เลื่อนจุดลาดตระเวน
+	if (WasSearchArrival())
+	{
+		// ใช้ค่าแล้ว: จุดซ่อนเก่าจะไม่ถูกนับซ้ำเมื่อลาดตระเวนผ่าน
+		GetBlackboardComponent()->ClearValue(SearchLocationKey);
 		return;
 	}
 
@@ -367,6 +416,89 @@ bool AEnemyAIController::WasInvestigateArrival() const
 
 	// การมาถึง = Pawn อยู่ภายในระยะยอมรับของ AlertLocation
 	return FVector::Dist2D(ControlledPawn->GetActorLocation(), BlackboardComp->GetValueAsVector(AlertLocationKey)) <= ArrivalRadius;
+}
+
+// ---- บทที่ 12: ผลของ EQS ใน Blackboard ----
+
+EBlackboardNotificationResult
+AEnemyAIController::OnQueryResultChanged(
+	const UBlackboardComponent& ChangedBlackboard,
+	FBlackboard::FKey ChangedKey)
+{
+	// Run EQS Query เขียนคีย์ภายใน SetValue ผู้สังเกตจึงถูกเรียกทันที
+	// และถูกเรียกเฉพาะเมื่อค่าเปลี่ยน (จุดเดิมซ้ำไม่มีบรรทัดใหม่)
+	const bool bTactical = ChangedKey
+		== ChangedBlackboard.GetKeyID(TacticalLocationKey);
+	const FName Key =
+		bTactical ? TacticalLocationKey : SearchLocationKey;
+
+	// ค่าถูกล้าง (Query ล้มเหลว หรือการมาถึงใช้ค่าแล้ว): ไม่มีบรรทัด
+	if (!ChangedBlackboard.IsVectorValueSet(Key))
+	{
+		return EBlackboardNotificationResult::ContinueObserving;
+	}
+
+	const FVector Location =
+		ChangedBlackboard.GetValueAsVector(Key);
+	if (bTactical)
+	{
+		// ผลที่คาด: LogTemp: [EQS] Engage: tactical point chosen
+		UE_LOG(LogTemp, Log,
+			TEXT("[EQS] Engage: tactical point chosen"));
+		DrawQueryChoice(Location, FColor::Green);
+	}
+	else
+	{
+		// ผลที่คาด: LogTemp: [EQS] Search: checking hidden spot
+		UE_LOG(LogTemp, Log,
+			TEXT("[EQS] Search: checking hidden spot"));
+		DrawQueryChoice(Location, FColor::Orange);
+	}
+	return EBlackboardNotificationResult::ContinueObserving;
+}
+
+void AEnemyAIController::DrawQueryChoice(const FVector& Location,
+	const FColor& Color) const
+{
+#if ENABLE_DRAW_DEBUG
+	// เครื่องมือวัดเท่านั้น: Shipping และ Test ไม่วาดดีบัก
+	DrawDebugSphere(GetWorld(), Location, ChoiceSphereRadius, 12,
+		Color, false, ChoiceSphereSeconds);
+#endif
+}
+
+bool AEnemyAIController::WasTacticalArrival() const
+{
+	const UBlackboardComponent* BlackboardComp =
+		GetBlackboardComponent();
+	const APawn* ControlledPawn = GetPawn();
+	// BB_Enemy (บทที่ 7–11) ไม่มีคีย์นี้: คืนเท็จเสมอ
+	if (BlackboardComp == nullptr || ControlledPawn == nullptr
+		|| !BlackboardComp->GetValueAsObject(TargetActorKey)
+		|| !BlackboardComp->IsVectorValueSet(TacticalLocationKey))
+	{
+		return false;
+	}
+	const FVector Point =
+		BlackboardComp->GetValueAsVector(TacticalLocationKey);
+	const FVector Here = ControlledPawn->GetActorLocation();
+	return FVector::Dist2D(Here, Point) <= ArrivalRadius;
+}
+
+bool AEnemyAIController::WasSearchArrival() const
+{
+	const UBlackboardComponent* BlackboardComp =
+		GetBlackboardComponent();
+	const APawn* ControlledPawn = GetPawn();
+	if (BlackboardComp == nullptr || ControlledPawn == nullptr
+		|| !BlackboardComp->IsVectorValueSet(SearchLocationKey))
+	{
+		return false;
+	}
+	const FVector Point =
+		BlackboardComp->GetValueAsVector(SearchLocationKey);
+	const FVector Here = ControlledPawn->GetActorLocation();
+	return FVector::Dist2D(Here, Point) <= ArrivalRadius;
 }
 
 void AEnemyAIController::WriteCurrentPatrolLocation()

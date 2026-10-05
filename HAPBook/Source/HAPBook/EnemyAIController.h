@@ -7,6 +7,8 @@
 //                ตัวรับสิ่งเร้า OnTargetPerceptionUpdated ที่เขียนความรู้ลง Blackboard เฉพาะเมื่อความสัมพันธ์เป็น Hostile
 //                และสวิตช์เปิด/ปิด Listener ตาม bPerceptionEnabled ของร่าง
 //                ระบบรับรู้เอง (Component + Sense Sight/Hearing + ค่าของ Sense) อยู่ใน BP_EnemyAIController ซึ่งเป็น Blueprint ลูกของคลาสนี้
+// บทที่ 12 เพิ่ม: คีย์ผลของ EQS (TacticalLocation, SearchLocation), ผู้สังเกตคีย์ทั้งสองพร้อมทรงกลมดีบัก (เครื่องมือวัด)
+//                และการจำแนกการมาถึงจุดยืน/จุดซ่อน — Query เองรันโดย Run EQS Query ใน BT_Enemy_EQS ไม่ใช่โดยคลาสนี้
 
 #pragma once
 
@@ -43,6 +45,12 @@ public:
 
 	// บทที่ 11: ฝ่ายของศัตรู (ผู้เล่นคือ 1 — ดู AHAPPlayerCharacter::TeamId)
 	static constexpr uint8 EnemyTeamId = 2;
+
+	// บทที่ 12: คีย์ที่ Run EQS Query เขียน (BB_Enemy_EQS)
+	// TacticalLocation = จุดยืนของกิ่ง Engage (EQS_TacticalPoint)
+	// SearchLocation = จุดซ่อนที่กิ่ง Investigate ไปตรวจ
+	static const FName TacticalLocationKey;
+	static const FName SearchLocationKey;
 
 	// บทที่ 8: เรียกจาก Blueprint (BP_AlertZone เมื่อผู้เล่นทับซ้อน ส่งตำแหน่งของตนเอง): เขียน AlertLocation ก่อน แล้วตั้ง Alerted = true
 	// SourceName ใช้ในบรรทัดบันทึกเท่านั้น (BP_AlertZone ส่ง "AlertZone")
@@ -104,4 +112,24 @@ private:
 
 	// เครื่องมือวัด: ชื่อที่ใช้ในบรรทัดบันทึก — DummyName สำหรับ ATargetDummy, ชื่อคลาส (BP_ThirdPersonCharacter_C) สำหรับ Actor อื่น
 	static FString PerceivedName(const AActor* Actor);
+
+	// ---- บทที่ 12: ผลของ EQS ใน Blackboard (BT_Enemy_EQS เท่านั้น) ----
+
+	// เครื่องมือวัด: ผู้สังเกตคีย์ผลของ Query ทั้งสอง
+	// บันทึกบรรทัด [EQS] และวาดทรงกลมที่จุดที่ Query เลือก
+	EBlackboardNotificationResult OnQueryResultChanged(
+		const UBlackboardComponent& ChangedBlackboard,
+		FBlackboard::FKey ChangedKey);
+
+	// เครื่องมือวัด: ทรงกลมดีบัก (ไม่มีใน Shipping/Test)
+	void DrawQueryChoice(const FVector& Location,
+		const FColor& Color) const;
+	static constexpr float ChoiceSphereRadius = 60.0f;
+	static constexpr float ChoiceSphereSeconds = 3.0f;
+
+	// จำแนกการมาถึงจากจุดหมายของคำขอ (กฎของบทที่ 8)
+	// จุดยืน: TargetActor ตั้งอยู่และถึง TacticalLocation
+	bool WasTacticalArrival() const;
+	// จุดซ่อน: ถึง SearchLocation (ล้างคีย์หลังใช้)
+	bool WasSearchArrival() const;
 };
