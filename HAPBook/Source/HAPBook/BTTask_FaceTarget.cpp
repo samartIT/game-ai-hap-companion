@@ -29,7 +29,10 @@ EBTNodeResult::Type UBTTask_FaceTarget::ExecuteTask(UBehaviorTreeComponent& Owne
 	AAIController* Controller = OwnerComp.GetAIOwner();
 	APawn* Pawn = Controller ? Controller->GetPawn() : nullptr;
 	UBlackboardComponent* Blackboard = OwnerComp.GetBlackboardComponent();
-	ATargetDummy* Target = Blackboard ? Cast<ATargetDummy>(Blackboard->GetValueAsObject(NearestTargetKey.SelectedKeyName)) : nullptr;
+	ATargetDummy* Target = Blackboard
+		? Cast<ATargetDummy>(Blackboard->GetValueAsObject(
+			NearestTargetKey.SelectedKeyName))
+		: nullptr;
 	if (Pawn == nullptr || Target == nullptr)
 	{
 		return EBTNodeResult::Failed;   // ข้อมูลไม่ครบ: ล้มเหลวอย่างชัดเจน ไม่ค้าง

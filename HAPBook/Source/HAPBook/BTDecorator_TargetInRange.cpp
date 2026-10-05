@@ -26,7 +26,8 @@ void UBTDecorator_TargetInRange::InitializeFromAsset(UBehaviorTree& Asset)
 	}
 }
 
-bool UBTDecorator_TargetInRange::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const
+bool UBTDecorator_TargetInRange::CalculateRawConditionValue(
+	UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const
 {
 	const UBlackboardComponent* Blackboard = OwnerComp.GetBlackboardComponent();
 	if (Blackboard == nullptr)
@@ -35,7 +36,8 @@ bool UBTDecorator_TargetInRange::CalculateRawConditionValue(UBehaviorTreeCompone
 	}
 
 	// อ่านและเปรียบเทียบเท่านั้น: ฟังก์ชันนี้ถูกเรียกทุกการค้นหาและทุกครั้งที่ DistanceToTarget เปลี่ยน
-	const ATargetDummy* Target = Cast<ATargetDummy>(Blackboard->GetValueAsObject(NearestTargetKey.SelectedKeyName));
+	const ATargetDummy* Target = Cast<ATargetDummy>(
+		Blackboard->GetValueAsObject(NearestTargetKey.SelectedKeyName));
 	const UObject* LastFaced = Blackboard->GetValueAsObject(LastFacedTargetKey.SelectedKeyName);
 	const float Distance = Blackboard->GetValueAsFloat(BlackboardKey.SelectedKeyName);
 	const bool bInRange = Target != nullptr && Distance < Range && LastFaced != Target;

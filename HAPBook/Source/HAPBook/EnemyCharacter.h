@@ -3,6 +3,8 @@
 // และ Enhanced Input ไว้ ซึ่งศัตรูต้องไม่สืบทอด ตามแนวทาง HAP รากฐานของศัตรูคือคลาส C++ ของตนเอง
 // ส่วนโมเดล Mannequin และ Animation Blueprint เป็นชั้นตรรกะระดับสูง กำหนดใน Blueprint ลูก (BP_Enemy)
 // บทที่ 10 เพิ่ม: UHealthComponent (ร่างกายที่บาดเจ็บได้) และลำดับการตาย (หยุด Behavior Tree ปิดการชนและการเคลื่อนที่ ทำลายใน 3 วินาที)
+// บทที่ 11 เพิ่ม: สวิตช์ต่ออินสแตนซ์ bPerceptionEnabled ที่ AEnemyAIController อ่านตอน Possess (ร่างถือค่า เพราะ Controller ถูก Spawn ไม่ได้วาง)
+//                ค่าของ Sense ทั้งหมด (รวม Detect Neutrals) อยู่ใน BP_EnemyAIController ไม่ใช่ที่นี่
 
 #pragma once
 
@@ -35,6 +37,12 @@ public:
 	// VisibleAnywhere: เห็น Component ในแผง Details (และปรับ MaxHealth ของมันได้ที่นั่น) BlueprintReadOnly: กราฟของ BP_Enemy อ้างถึงได้
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
 	TObjectPtr<UHealthComponent> HealthComponent;
+
+	// บทที่ 11: เปิด Listener ของ Controller ให้อินสแตนซ์นี้ — Component AIPerception ของ BP_EnemyAIController มีอยู่ในทุกแผนที่
+	// ตอน Possess Controller ผูกตัวรับและคงการลงทะเบียน Listener ไว้เมื่อจริง หรือถอน Listener ออกจากระบบกลางเมื่อเท็จ
+	// EditInstanceOnly โดยเจตนา: กาที่ BP_Enemy ที่วางใน L_Ch11 เท่านั้น ค่าเริ่มต้นเท็จทำให้ L_Ch07–L_Ch10 ไม่เปลี่ยนแม้แต่บรรทัดเดียว
+	UPROPERTY(EditInstanceOnly, Category = "Perception")
+	bool bPerceptionEnabled = false;
 
 protected:
 	// บทที่ 10: ผูก OnDeath ของ Component (Delegate ผูกเมื่อทั้งสองฝ่ายมีตัวตนแล้ว)

@@ -1,15 +1,64 @@
-// บทที่ 7 — การนิยาม AEnemyAIController (บทที่ 8 เพิ่มส่วนที่กำกับว่า "บทที่ 8")
+// บทที่ 7 — การนิยาม AEnemyAIController (บทที่ 8 และ 11 เพิ่มส่วนที่กำกับว่า "บทที่ 8" / "บทที่ 11")
 
 #include "EnemyAIController.h"
 #include "EnemyCharacter.h"
+#include "TargetDummy.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Navigation/PathFollowingComponent.h" // FPathFollowingResult, GetPathDestination
+#include "Perception/AIPerceptionComponent.h"
+#include "Perception/AIPerceptionSystem.h"      // GetSenseClassForStimulus, UnregisterListener
+#include "Perception/AISense_Sight.h"           // ใช้เทียบคลาสของ Sense เท่านั้น: ค่าของ Sense อยู่ใน BP_EnemyAIController
+#include "Perception/AISense_Hearing.h"
+#include "Kismet/GameplayStatics.h"            // GetPlayerPawn (บรรทัด Teams เท่านั้น)
 #include "TimerManager.h"
 
 const FName AEnemyAIController::PatrolLocationKey(TEXT("PatrolLocation"));
 const FName AEnemyAIController::AlertedKey(TEXT("Alerted"));
 const FName AEnemyAIController::AlertLocationKey(TEXT("AlertLocation"));
+const FName AEnemyAIController::TargetActorKey(TEXT("TargetActor"));
+const FName AEnemyAIController::LastKnownLocationKey(TEXT("LastKnownLocation"));
+
+namespace
+{
+	// บทที่ 11: Attitude Solver (ตัวตัดสินความสัมพันธ์ฝ่าย) ของงานเขียนนี้ — ฝ่ายเดียวกัน Friendly, ต่างฝ่าย Hostile, ไม่มีฝ่าย (NoTeam = 255) Neutral
+	// Attitude Solver เริ่มต้นของเอนจิ้น (AIInterfaces.cpp: DefaultTeamAttitudeSolver) คืน A != B ? Hostile : Friendly โดยไม่ตรวจ NoTeam
+	// กฎ NoTeam -> Neutral ของเอนจิ้นมีเฉพาะเมื่อ Actor อีกฝ่าย "ไม่มี Interface" (IGenericTeamAgentInterface::GetTeamAttitudeTowards)
+	// ส่วนทางเดินที่เทียบรหัสฝ่ายตรง ๆ (Hearing: FAINoiseEvent::TeamIdentifier) จะเห็นเสียงจากผู้ไม่มีฝ่ายเป็น Hostile — Attitude Solver นี้ปิดช่องนั้น
+	ETeamAttitude::Type HAPAttitudeSolver(FGenericTeamId A, FGenericTeamId B)
+	{
+		if (A == FGenericTeamId::NoTeam || B == FGenericTeamId::NoTeam)
+		{
+			return ETeamAttitude::Neutral;
+		}
+		return A == B ? ETeamAttitude::Friendly : ETeamAttitude::Hostile;
+	}
+
+	// เครื่องมือวัด: ETeamAttitude เป็น enum ธรรมดา (ไม่มีชื่อผ่าน Reflection ที่สะดวก) จึงแปลงเอง
+	const TCHAR* AttitudeToString(ETeamAttitude::Type Attitude)
+	{
+		switch (Attitude)
+		{
+		case ETeamAttitude::Friendly: return TEXT("Friendly");
+		case ETeamAttitude::Hostile:  return TEXT("Hostile");
+		default:                      return TEXT("Neutral");
+		}
+	}
+}
+
+AEnemyAIController::AEnemyAIController()
+{
+	// บทที่ 11: ฝ่ายของศัตรู — AAIController Implement IGenericTeamAgentInterface อยู่แล้ว (สมาชิก TeamID, ค่าเริ่มต้น NoTeam)
+	SetGenericTeamId(FGenericTeamId(EnemyTeamId));
+
+	// บทที่ 11: ติดตั้ง Attitude Solver ครั้งเดียวทั้งโปรเจกต์ (เป็นค่าสถิตของ FGenericTeamId) ตั้งแต่ CDO ถูกสร้างตอนโหลดโมดูล
+	static bool bSolverInstalled = false;
+	if (!bSolverInstalled)
+	{
+		FGenericTeamId::SetAttitudeSolver(&HAPAttitudeSolver);
+		bSolverInstalled = true;
+	}
+}
 
 void AEnemyAIController::OnPossess(APawn* InPawn)
 {
@@ -20,6 +69,7 @@ void AEnemyAIController::OnPossess(APawn* InPawn)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[AI] %s: Behavior Tree not started (asset or patrol points missing)"),
 			*GetNameSafe(InPawn));
+		SetPerceptionActive(false);   // บทที่ 11: ไม่มี Behavior Tree ก็ไม่มีผู้ใช้ความรู้ ถอน Listener ที่ Component ลงทะเบียนไว้ตอน Spawn
 		return;
 	}
 
@@ -43,13 +93,151 @@ void AEnemyAIController::OnPossess(APawn* InPawn)
 			FOnBlackboardChangeNotification::CreateUObject(this, &AEnemyAIController::OnAlertedChanged));
 	}
 
-	// 3. เริ่ม Behavior Tree (BT_Enemy: Selector -> [Investigate: Alerted Is Set -> Move To(AlertLocation) -> Wait 2.0]
-	//                                               | [Sequence -> Move To(PatrolLocation) -> Wait 1.0] )
+	// 2c. บทที่ 11: เปิด Listener เฉพาะอินสแตนซ์ที่กาไว้ในแผนที่ (L_Ch07–L_Ch10 ไม่กา: Listener ถูกถอน ไม่มี Line Trace ไม่มีบรรทัดใดเพิ่ม)
+	SetPerceptionActive(Enemy->bPerceptionEnabled);
+
+	// 3. เริ่ม Behavior Tree (BT_Enemy: Selector -> [Chase: TargetActor Is Set (Both) -> Move To(TargetActor) -> Wait 0.5]
+	//                                               | [Investigate: Alerted Is Set -> Move To(AlertLocation) -> Wait 2.0]
+	//                                               | [Face (บทที่ 9)] | [Sequence -> Move To(PatrolLocation) -> Wait 1.0] )
 	RunBehaviorTree(Enemy->BehaviorTreeAsset);
 
 	// ผลที่คาด: LogTemp: [AI] Possessed BP_Enemy_C: 3 patrol points, Behavior Tree running
 	UE_LOG(LogTemp, Log, TEXT("[AI] Possessed %s: %d patrol points, Behavior Tree running"),
 		*InPawn->GetClass()->GetName(), Enemy->PatrolPoints.Num());
+}
+
+void AEnemyAIController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// บทที่ 11 (เครื่องมือวัด): Pawn ของผู้เล่นเกิดหลัง PostInitializeComponents ของ Actor ที่วางในฉาก (ซึ่งคือตอนที่ OnPossess ทำงาน)
+	// แต่ก่อน BeginPlay ของ World จึงอ่านฝ่ายของผู้เล่นได้ที่นี่ รอหนึ่ง Tick เพื่อให้ไม่ขึ้นกับลำดับ BeginPlay ระหว่าง Actor
+	const AEnemyCharacter* Enemy = Cast<AEnemyCharacter>(GetPawn());
+	if (Enemy != nullptr && Enemy->bPerceptionEnabled)
+	{
+		GetWorldTimerManager().SetTimerForNextTick(this, &AEnemyAIController::LogTeamAttitude);
+	}
+}
+
+void AEnemyAIController::SetPerceptionActive(bool bActive)
+{
+	// Component ถูกเพิ่มใน BP_EnemyAIController (Add Component) — ระหว่าง Spawn ของ Controller ซึ่งเกิดก่อน Possess
+	// OnRegister ของ Component ลงทะเบียน Sense และ Listener กับ AIPerceptionSystem และใส่ตัวเองลงช่อง PerceptionComponent ของ AAIController (AIPerceptionComponent.cpp: OnRegister)
+	// นี่คือทางเดียว: AAIController::PostRegisterAllComponents (FindComponentByClass) ทำงานก่อนที่ Component ของ Blueprint ถูกสร้าง จึงพบเฉพาะ Component ของ C++
+	UAIPerceptionComponent* Perception = GetAIPerceptionComponent();
+	if (Perception == nullptr)
+	{
+		if (bActive)
+		{
+			// AI Controller Class ของ BP_Enemy ยังเป็นคลาส C++ (ไม่มี Component) แทน BP_EnemyAIController
+			UE_LOG(LogTemp, Warning, TEXT("[Perception] %s: Perception Enabled but the controller has no AIPerception component (set AI Controller Class to BP_EnemyAIController)"),
+				*GetNameSafe(GetPawn()));
+		}
+		return;
+	}
+
+	if (bActive)
+	{
+		// สะพานเชื่อม: Dynamic Multicast Delegate ผูกด้วยชื่อผ่าน Reflection (ปลายทางต้องเป็น UFUNCTION)
+		Perception->OnTargetPerceptionUpdated.AddUniqueDynamic(this, &AEnemyAIController::OnTargetPerceptionUpdated);
+		// ยืนยันการลงทะเบียน Listener (ลงทะเบียนใหม่หากเคยถูกถอน; หากลงทะเบียนอยู่แล้ว Sense เพียงสร้าง Query ของ Listener นี้ใหม่)
+		Perception->RequestStimuliListenerUpdate();
+	}
+	else
+	{
+		Perception->OnTargetPerceptionUpdated.RemoveDynamic(this, &AEnemyAIController::OnTargetPerceptionUpdated);
+		// ถอน Listener ออกจากระบบกลาง: Sense ทุกตัวลบ Query ของ Listener นี้ ไม่มี Line Trace และไม่มีสิ่งเร้า (AIPerceptionSystem.cpp: UnregisterListener)
+		if (UAIPerceptionSystem* PerceptionSystem = UAIPerceptionSystem::GetCurrent(this))
+		{
+			PerceptionSystem->UnregisterListener(*Perception);
+		}
+	}
+}
+
+void AEnemyAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
+{
+	UBlackboardComponent* BlackboardComp = GetBlackboardComponent();
+	if (BlackboardComp == nullptr || Actor == nullptr)
+	{
+		return;
+	}
+
+	const TSubclassOf<UAISense> SenseClass = UAIPerceptionSystem::GetSenseClassForStimulus(this, Stimulus);
+
+	// นโยบายของตัวรับ: ระบบรับรู้รายงานทุกสิ่งที่ผ่าน Config แต่ AI รู้เฉพาะสิ่งที่ตัวรับเลือกเขียน
+	// เขียนความรู้ลง Blackboard เฉพาะเมื่อความสัมพันธ์ต่อ Actor เป็น Hostile (ถามสดผ่าน Attitude Solver ของงานเขียนนี้ทุกครั้ง)
+	const bool bHostile = GetTeamAttitudeTowards(*Actor) == ETeamAttitude::Hostile;
+
+	if (SenseClass == UAISense_Sight::StaticClass())
+	{
+		if (Stimulus.WasSuccessfullySensed())
+		{
+			// เครื่องมือวัด: บันทึกทุกสิ่งที่เห็น ไม่ว่าฝ่ายใด
+			// ผลที่คาด: LogTemp: [Perception] Sight gained: BP_ThirdPersonCharacter_C
+			UE_LOG(LogTemp, Log, TEXT("[Perception] Sight gained: %s"), *PerceivedName(Actor));
+
+			if (bHostile)
+			{
+				// ความจำของเป้าหมาย (ตำแหน่งปัจจุบัน) แล้วเป้าหมาย: Decorator ของกิ่ง Chase (Is Set, Both) ยุติกิ่งที่สำคัญต่ำกว่าในการเขียนนี้
+				BlackboardComp->SetValueAsVector(LastKnownLocationKey, Stimulus.StimulusLocation);
+				BlackboardComp->SetValueAsObject(TargetActorKey, Actor);
+			}
+		}
+		else if (bHostile)
+		{
+			// Sight รายงาน "หาย" เอง (FAIStimulus::SensingFailed) เมื่อแนวสายตาขาดหรือเป้าหมายพ้น LoseSightRadius
+			// ลำดับการเขียนมีความหมาย: ความจำ -> จุดหมาย -> สวิตช์ -> ล้างเป้าหมาย
+			//   (ก) LastKnownLocation และ AlertLocation = ตำแหน่งที่พบล่าสุด (นำกลไก Investigate ของบทที่ 8 กลับมาใช้)
+			//   (ข) Alerted = true ขณะที่ TargetActor ยังตั้งอยู่: ผู้สังเกตของบทที่ 8 เห็นว่ากำลังไล่ตาม จึงไม่ตั้งตัวตรวจ "Patrol aborted"
+			//   (ค) ล้าง TargetActor: Decorator (Both) ยุติกิ่งของตนเอง (Self) Selector ตกไปกิ่ง Investigate ซึ่งพร้อมแล้ว
+			BlackboardComp->SetValueAsVector(LastKnownLocationKey, Stimulus.StimulusLocation);
+			BlackboardComp->SetValueAsVector(AlertLocationKey, Stimulus.StimulusLocation);
+			BlackboardComp->SetValueAsBool(AlertedKey, true);
+
+			// ผลที่คาด: LogTemp: [Perception] Sight lost: BP_ThirdPersonCharacter_C -> investigating last known location
+			UE_LOG(LogTemp, Log, TEXT("[Perception] Sight lost: %s -> investigating last known location"), *PerceivedName(Actor));
+
+			BlackboardComp->ClearValue(TargetActorKey);
+		}
+		// สิ่งที่ไม่ใช่ Hostile หายจากสายตา: ไม่มีความรู้ให้ลบ ไม่มีการตรวจสอบ และไม่มีบรรทัด
+	}
+	else if (SenseClass == UAISense_Hearing::StaticClass() && Stimulus.WasSuccessfullySensed() && bHostile)
+	{
+		// เสียง: ไม่มี Actor ให้ไล่ตาม (ได้ยินแต่ไม่เห็น) จึงใช้กลไก Investigate ของบทที่ 8 กับตำแหน่งของสิ่งเร้า
+		// หากกำลังไล่ตามอยู่ กิ่ง Chase สำคัญกว่าและไม่ถูกกระทบ (Lower Priority ของ Investigate ยุติเฉพาะกิ่งที่ต่ำกว่าตน)
+		BlackboardComp->SetValueAsVector(AlertLocationKey, Stimulus.StimulusLocation);
+		BlackboardComp->SetValueAsBool(AlertedKey, true);
+
+		// ผลที่คาด: LogTemp: [Perception] Heard: BP_ThirdPersonCharacter_C -> investigating noise
+		UE_LOG(LogTemp, Log, TEXT("[Perception] Heard: %s -> investigating noise"), *PerceivedName(Actor));
+	}
+}
+
+void AEnemyAIController::LogTeamAttitude()
+{
+	const APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(this, 0);
+	if (PlayerPawn == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Perception] Teams: player pawn not found"));
+		return;
+	}
+
+	// ทั้งสองค่าผ่านเส้นทางจริงของเอนจิ้น: GetTeamIdentifier Cast Pawn เป็น Interface; GetTeamAttitudeTowards -> FGenericTeamId::GetAttitude -> Attitude Solver
+	// ผู้เล่นที่ไม่มี Interface (ยังไม่ Reparent) อ่านว่า player=255 attitude=Neutral — การวินิจฉัยอยู่ในบรรทัดนี้
+	// ผลที่คาด: LogTemp: [Perception] Teams: enemy=2 player=1 attitude=Hostile
+	UE_LOG(LogTemp, Log, TEXT("[Perception] Teams: enemy=%d player=%d attitude=%s"),
+		GetGenericTeamId().GetId(),
+		FGenericTeamId::GetTeamIdentifier(PlayerPawn).GetId(),
+		AttitudeToString(GetTeamAttitudeTowards(*PlayerPawn)));
+}
+
+FString AEnemyAIController::PerceivedName(const AActor* Actor)
+{
+	if (const ATargetDummy* Dummy = Cast<ATargetDummy>(Actor))
+	{
+		return Dummy->DummyName.ToString();   // Dummy_01 (บทที่ 9) ไม่ใช่ TargetDummy_C
+	}
+	return Actor->GetClass()->GetName();      // BP_ThirdPersonCharacter_C เช่นเดียวกับบรรทัดของบทที่ 10
 }
 
 void AEnemyAIController::RaiseAlert(const FVector& Location, FName SourceName)
@@ -71,7 +259,8 @@ void AEnemyAIController::RaiseAlert(const FVector& Location, FName SourceName)
 
 EBlackboardNotificationResult AEnemyAIController::OnAlertedChanged(const UBlackboardComponent& ChangedBlackboard, FBlackboard::FKey ChangedKey)
 {
-	if (ChangedBlackboard.GetValueAsBool(AlertedKey))
+	// บทที่ 11: ขณะไล่ตาม (TargetActor ตั้งอยู่) สัญญาณเตือนไม่ยุติการลาดตระเวน เพราะไม่ได้ลาดตระเวนอยู่ — เครื่องมือวัดของบทที่ 8 จึงไม่ทำงาน
+	if (ChangedBlackboard.GetValueAsBool(AlertedKey) && ChangedBlackboard.GetValueAsObject(TargetActorKey) == nullptr)
 	{
 		// Decorator ร้องขอการยุติในการเรียกเดียวกันนี้ แต่ Behavior Tree ประมวลผลคำขอในการ Tick ถัดไป จึงตรวจผลหลัง 0.1 วินาที
 		GetWorldTimerManager().SetTimer(AbortCheckTimer, this, &AEnemyAIController::CheckAbortAfterAlert, 0.1f, false);
@@ -120,6 +309,12 @@ void AEnemyAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFoll
 		return;
 	}
 
+	// บทที่ 11: การถึงเป้าหมายที่ไล่ตามไม่เลื่อนจุดลาดตระเวนและไม่ล้างคีย์ใด กิ่ง Chase วน Move To -> Wait 0.5 ต่อจนกว่า Sight จะรายงานว่าหาย
+	if (WasChaseArrival())
+	{
+		return;
+	}
+
 	// บทที่ 8: การมาถึง AlertLocation ไม่เลื่อนจุดลาดตระเวน และล้าง Alerted ให้ Decorator เห็นค่าเท็จ
 	// (ด้วย Observer Aborts แบบ Lower Priority Decorator ไม่ยุติกิ่งของตนเอง Wait 2.0 จึงเล่นจนจบ แล้ว Selector ตกไปกิ่งลาดตระเวน)
 	if (WasInvestigateArrival())
@@ -140,6 +335,25 @@ void AEnemyAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFoll
 
 	CurrentPatrolIndex = (CurrentPatrolIndex + 1) % Count;   // วนกลับไปจุดแรกหลังจุดสุดท้าย
 	WriteCurrentPatrolLocation();                             // Node Move To รอบถัดไปอ่านค่าใหม่นี้
+}
+
+bool AEnemyAIController::WasChaseArrival() const
+{
+	const UBlackboardComponent* BlackboardComp = GetBlackboardComponent();
+	const APawn* ControlledPawn = GetPawn();
+	if (BlackboardComp == nullptr || ControlledPawn == nullptr)
+	{
+		return false;
+	}
+
+	// BB_Enemy ของบทที่ 7–10 ไม่มีคีย์นี้ (GetValueAsObject คืน nullptr) และไม่มีสิ่งใดเขียนคีย์เมื่อ Listener ถูกถอน (Perception Enabled เป็นเท็จ)
+	const AActor* Target = Cast<AActor>(BlackboardComp->GetValueAsObject(TargetActorKey));
+	if (Target == nullptr)
+	{
+		return false;
+	}
+
+	return FVector::Dist2D(ControlledPawn->GetActorLocation(), Target->GetActorLocation()) <= ChaseArrivalRadius;
 }
 
 bool AEnemyAIController::WasInvestigateArrival() const

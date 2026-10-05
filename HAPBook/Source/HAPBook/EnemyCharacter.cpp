@@ -11,6 +11,7 @@ AEnemyCharacter::AEnemyCharacter()
 	PrimaryActorTick.bCanEverTick = false;
 
 	// สมอง (Mind) ของร่างนี้คือ AEnemyAIController: เอนจิ้นจะสร้างและสั่ง Possess ให้โดยอัตโนมัติ
+	// บทที่ 11: Class Defaults ของ BP_Enemy เขียนทับค่านี้เป็น BP_EnemyAIController (Blueprint ลูกที่ถือ Component AIPerception และ Sense)
 	AIControllerClass = AEnemyAIController::StaticClass();
 
 	// ให้ AI Controller เข้าควบคุมทั้งกรณีวางไว้ในฉากล่วงหน้าและกรณี Spawn ระหว่างเล่น
