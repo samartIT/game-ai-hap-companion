@@ -3,6 +3,8 @@
 // สิ่งเดียวที่เพิ่มคือ IGenericTeamAgentInterface ซึ่งระบบรับรู้ (AI Perception) อ่านจาก Pawn ของผู้เล่นโดยตรง
 // (FGenericTeamId::GetTeamIdentifier Cast Actor เป็น Interface — ไม่ไล่ไปที่ Controller) ผู้เล่นจึงต้องถือฝ่ายไว้ที่ร่างของตนเอง
 // BP_ThirdPersonCharacter ถูก Reparent มายังคลาสนี้ (File -> Reparent Blueprint) ในขั้นที่ 2 ของตัวอย่างประกอบ (ฝ่ายในฐานะตัวกรองของการรับรู้)
+// บทที่ 13 เพิ่ม: LogFromBlueprint() — เครื่องมือวัดที่ Blueprint ของผู้เล่นเรียกเพื่อบันทึกบรรทัด [Combat] ลง LogTemp
+//                (นโยบายการตายของผู้เล่นอยู่ใน Event Graph ของ BP_ThirdPersonCharacter ไม่ใช่ที่นี่)
 
 #pragma once
 
@@ -25,4 +27,10 @@ public:
 	// IGenericTeamAgentInterface: ฟังก์ชันเสมือนของ C++ ล้วน (ไม่ใช่ UFUNCTION) Blueprint จึงทั้ง Implement และเรียกไม่ได้
 	virtual FGenericTeamId GetGenericTeamId() const override { return FGenericTeamId(TeamId); }
 	virtual void SetGenericTeamId(const FGenericTeamId& NewTeamId) override { TeamId = NewTeamId.GetId(); }
+
+	// บทที่ 13 (เครื่องมือวัด): บรรทัด [Combat] ใน LogTemp
+	// Print String เขียนลง LogBlueprintUserMessages
+	// ไม่ใช่ LogTemp
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	void LogFromBlueprint(const FString& Message) const;
 };

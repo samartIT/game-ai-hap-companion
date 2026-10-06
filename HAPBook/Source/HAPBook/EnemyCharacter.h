@@ -45,7 +45,7 @@ public:
 
 	// บทที่ 11: เปิด Listener ของ Controller ให้อินสแตนซ์นี้ — Component AIPerception ของ BP_EnemyAIController มีอยู่ในทุกแผนที่
 	// ตอน Possess Controller ผูกตัวรับและคงการลงทะเบียน Listener ไว้เมื่อจริง หรือถอน Listener ออกจากระบบกลางเมื่อเท็จ
-	// EditInstanceOnly โดยเจตนา: กาที่ BP_Enemy ที่วางใน L_Ch11 เท่านั้น ค่าเริ่มต้นเท็จทำให้ L_Ch07–L_Ch10 ไม่เปลี่ยนแม้แต่บรรทัดเดียว
+	// EditInstanceOnly โดยเจตนา: เลือกที่ BP_Enemy ที่วางใน L_Ch11 เท่านั้น ค่าเริ่มต้นเท็จทำให้ L_Ch07–L_Ch10 ไม่เปลี่ยนแม้แต่บรรทัดเดียว
 	UPROPERTY(EditInstanceOnly, Category = "Perception")
 	bool bPerceptionEnabled = false;
 

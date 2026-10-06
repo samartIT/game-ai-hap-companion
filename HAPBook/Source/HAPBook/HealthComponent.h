@@ -2,6 +2,7 @@
 // Component เดียวกันนี้แนบกับ AEnemyCharacter ด้วย CreateDefaultSubobject (C++) และกับ BP_ThirdPersonCharacter ด้วย Add Component (Blueprint)
 // รับความเสียหายจาก Delegate OnTakeAnyDamage ของเจ้าของ (ปลายทางของ ApplyDamage -> TakeDamage) แล้วส่งต่อเป็น Delegate ที่ Blueprint ผูกได้
 // ชั้นสะพานเชื่อมของ HAP ในทางปฏิบัติ: UPROPERTY ที่ปรับใน Editor + Delegate แบบ BlueprintAssignable ที่ผูกใน Event Graph
+// บทที่ 13 เพิ่ม: รายงานเหตุความเสียหายทุกครั้งต่อระบบรับรู้ (UAISense_Damage::ReportDamageEvent) และ IsActorDead()
 
 #pragma once
 
@@ -43,6 +44,10 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Health")
 	bool IsDead() const { return CurrentHealth <= 0.0f; }
+
+	// บทที่ 13: Actor นี้มี Component พลังชีวิตที่ตายแล้วหรือไม่
+	// Actor ที่ไม่มี Component นี้ไม่ถือว่าตาย
+	static bool IsActorDead(const AActor* Actor);
 
 	// เครื่องมือวัด (instrumentation): บันทึกบรรทัด [Damage] ลง Output Log ปิดได้ใน Class Defaults โดยพฤติกรรมไม่เปลี่ยน
 	UPROPERTY(EditAnywhere, Category = "Health|Debug")

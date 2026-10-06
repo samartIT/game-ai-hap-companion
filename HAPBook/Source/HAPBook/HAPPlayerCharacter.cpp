@@ -1,4 +1,12 @@
 // บทที่ 11 — การนิยาม AHAPPlayerCharacter
-// ไม่มีนิยามใดนอก Header: ทั้งสองฟังก์ชันของ Interface เป็น inline ไฟล์นี้มีไว้ให้ UnrealBuildTool รวมคลาสเข้าโมดูลตามแบบแผนของโปรเจกต์
+// ทั้งสองฟังก์ชันของ Interface เป็น inline ใน Header (บทที่ 11)
+// บทที่ 13 เพิ่ม: LogFromBlueprint() ซึ่งเป็นนิยามเดียวในไฟล์นี้
 
 #include "HAPPlayerCharacter.h"
+
+void AHAPPlayerCharacter::LogFromBlueprint(
+	const FString& Message) const
+{
+	// ผลที่คาด: LogTemp: [Combat] Player died
+	UE_LOG(LogTemp, Log, TEXT("[Combat] %s"), *Message);
+}

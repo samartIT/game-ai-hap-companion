@@ -1,7 +1,8 @@
-// บทที่ 7 — การนิยาม AEnemyAIController (บทที่ 8, 11 และ 12 เพิ่มส่วนที่กำกับว่า "บทที่ 8" / "บทที่ 11" / "บทที่ 12")
+// บทที่ 7 — การนิยาม AEnemyAIController (บทที่ 8, 11, 12 และ 13 เพิ่มส่วนที่กำกับว่า "บทที่ 8" / "บทที่ 11" / "บทที่ 12" / "บทที่ 13")
 
 #include "EnemyAIController.h"
 #include "EnemyCharacter.h"
+#include "HealthComponent.h"                   // บทที่ 13: IsActorDead
 #include "TargetDummy.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
@@ -10,6 +11,7 @@
 #include "Perception/AIPerceptionSystem.h"      // GetSenseClassForStimulus, UnregisterListener
 #include "Perception/AISense_Sight.h"           // ใช้เทียบคลาสของ Sense เท่านั้น: ค่าของ Sense อยู่ใน BP_EnemyAIController
 #include "Perception/AISense_Hearing.h"
+#include "Perception/AISense_Damage.h"         // บทที่ 13
 #include "Kismet/GameplayStatics.h"            // GetPlayerPawn (บรรทัด Teams เท่านั้น)
 #include "TimerManager.h"
 #include "DrawDebugHelpers.h"                  // บทที่ 12: ทรงกลมดีบัก (เครื่องมือวัด)
@@ -96,7 +98,7 @@ void AEnemyAIController::OnPossess(APawn* InPawn)
 			FOnBlackboardChangeNotification::CreateUObject(this, &AEnemyAIController::OnAlertedChanged));
 	}
 
-	// 2c. บทที่ 11: เปิด Listener เฉพาะอินสแตนซ์ที่กาไว้ในแผนที่ (L_Ch07–L_Ch10 ไม่กา: Listener ถูกถอน ไม่มี Line Trace ไม่มีบรรทัดใดเพิ่ม)
+	// 2c. บทที่ 11: เปิด Listener เฉพาะอินสแตนซ์ที่เลือกไว้ในแผนที่ (L_Ch07–L_Ch10 ไม่ได้เลือก: Listener ถูกถอน ไม่มี Line Trace ไม่มีบรรทัดใดเพิ่ม)
 	SetPerceptionActive(Enemy->bPerceptionEnabled);
 
 	// 2d. บทที่ 12: ผู้สังเกตคีย์ SearchLocation (มีเฉพาะใน BB_Enemy_EQS)
@@ -179,6 +181,15 @@ void AEnemyAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus St
 		return;
 	}
 
+	// บทที่ 13: ร่างที่ตายแล้วไม่รับรู้สิ่งใดเพิ่ม
+	// (Listener ยังทำงานขณะร่างคงอยู่ 3 วินาที)
+	// และผู้ที่ตายแล้วไม่ใช่ภัยคุกคาม
+	if (UHealthComponent::IsActorDead(GetPawn())
+		|| UHealthComponent::IsActorDead(Actor))
+	{
+		return;
+	}
+
 	const TSubclassOf<UAISense> SenseClass = UAIPerceptionSystem::GetSenseClassForStimulus(this, Stimulus);
 
 	// นโยบายของตัวรับ: ระบบรับรู้รายงานทุกสิ่งที่ผ่าน Config แต่ AI รู้เฉพาะสิ่งที่ตัวรับเลือกเขียน
@@ -195,7 +206,7 @@ void AEnemyAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus St
 
 			if (bHostile)
 			{
-				// ความจำของเป้าหมาย (ตำแหน่งปัจจุบัน) แล้วเป้าหมาย: Decorator ของกิ่ง Chase (Is Set, Both) ยุติกิ่งที่สำคัญต่ำกว่าในการเขียนนี้
+				// ความจำของเป้าหมาย (ตำแหน่งปัจจุบัน) แล้วเป้าหมาย: Decorator ของ Branch Chase (Is Set, Both) ยุติ Branch ที่สำคัญต่ำกว่าในการเขียนนี้
 				BlackboardComp->SetValueAsVector(LastKnownLocationKey, Stimulus.StimulusLocation);
 				BlackboardComp->SetValueAsObject(TargetActorKey, Actor);
 			}
@@ -206,7 +217,7 @@ void AEnemyAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus St
 			// ลำดับการเขียนมีความหมาย: ความจำ -> จุดหมาย -> สวิตช์ -> ล้างเป้าหมาย
 			//   (ก) LastKnownLocation และ AlertLocation = ตำแหน่งที่พบล่าสุด (นำกลไก Investigate ของบทที่ 8 กลับมาใช้)
 			//   (ข) Alerted = true ขณะที่ TargetActor ยังตั้งอยู่: ผู้สังเกตของบทที่ 8 เห็นว่ากำลังไล่ตาม จึงไม่ตั้งตัวตรวจ "Patrol aborted"
-			//   (ค) ล้าง TargetActor: Decorator (Both) ยุติกิ่งของตนเอง (Self) Selector ตกไปกิ่ง Investigate ซึ่งพร้อมแล้ว
+			//   (ค) ล้าง TargetActor: Decorator (Both) ยุติ Branch ของตนเอง (Self) Selector ตกไป Branch Investigate ซึ่งพร้อมแล้ว
 			BlackboardComp->SetValueAsVector(LastKnownLocationKey, Stimulus.StimulusLocation);
 			BlackboardComp->SetValueAsVector(AlertLocationKey, Stimulus.StimulusLocation);
 			BlackboardComp->SetValueAsBool(AlertedKey, true);
@@ -221,12 +232,34 @@ void AEnemyAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus St
 	else if (SenseClass == UAISense_Hearing::StaticClass() && Stimulus.WasSuccessfullySensed() && bHostile)
 	{
 		// เสียง: ไม่มี Actor ให้ไล่ตาม (ได้ยินแต่ไม่เห็น) จึงใช้กลไก Investigate ของบทที่ 8 กับตำแหน่งของสิ่งเร้า
-		// หากกำลังไล่ตามอยู่ กิ่ง Chase สำคัญกว่าและไม่ถูกกระทบ (Lower Priority ของ Investigate ยุติเฉพาะกิ่งที่ต่ำกว่าตน)
+		// หากกำลังไล่ตามอยู่ Branch Chase สำคัญกว่าและไม่ถูกกระทบ (Lower Priority ของ Investigate ยุติเฉพาะ Branch ที่ต่ำกว่าตน)
 		BlackboardComp->SetValueAsVector(AlertLocationKey, Stimulus.StimulusLocation);
 		BlackboardComp->SetValueAsBool(AlertedKey, true);
 
 		// ผลที่คาด: LogTemp: [Perception] Heard: BP_ThirdPersonCharacter_C -> investigating noise
 		UE_LOG(LogTemp, Log, TEXT("[Perception] Heard: %s -> investigating noise"), *PerceivedName(Actor));
+	}
+	// บทที่ 13: Sense Damage — สิ่งเร้าชี้ไปยังผู้กระทำ
+	// และไม่ผ่านการกรองฝ่าย
+	else if (SenseClass == UAISense_Damage::StaticClass()
+		&& Stimulus.WasSuccessfullySensed())
+	{
+		// เครื่องมือวัด: ทุกการโจมตี ไม่ว่าผู้กระทำเป็นฝ่ายใด
+		// ผลที่คาด: LogTemp: [Perception] Damage from: BP_ThirdPersonCharacter_C
+		UE_LOG(LogTemp, Log,
+			TEXT("[Perception] Damage from: %s"),
+			*PerceivedName(Actor));
+
+		if (bHostile)
+		{
+			// ผู้กระทำเป็นเป้าหมายแม้ยังมองไม่เห็น: Decorator
+			// (Both) ของ Chase ยุติ Branch ที่ต่ำกว่าทันที
+			// ไล่ตามผู้กระทำอยู่แล้ว: ค่าเดิม ไม่มีสิ่งใดเปลี่ยน
+			BlackboardComp->SetValueAsVector(LastKnownLocationKey,
+				Stimulus.StimulusLocation);
+			BlackboardComp->SetValueAsObject(TargetActorKey,
+				Actor);
+		}
 	}
 }
 
@@ -265,7 +298,7 @@ void AEnemyAIController::RaiseAlert(const FVector& Location, FName SourceName)
 		return;
 	}
 
-	// จุดหมายก่อนสวิตช์: ทันทีที่ Alerted เป็นจริง Decorator ร้องขอการยุติ และ Move To ของกิ่ง Investigate จะอ่าน AlertLocation
+	// จุดหมายก่อนสวิตช์: ทันทีที่ Alerted เป็นจริง Decorator ร้องขอการยุติ และ Move To ของ Branch Investigate จะอ่าน AlertLocation
 	BlackboardComp->SetValueAsVector(AlertLocationKey, Location);
 
 	// ผลที่คาด: LogTemp: [BT] Alert raised at AlertZone
@@ -294,7 +327,7 @@ void AEnemyAIController::CheckAbortAfterAlert()
 		return;
 	}
 
-	// คำขอเคลื่อนที่ปัจจุบันมุ่งไป AlertLocation = กิ่ง Investigate เข้ามาแทนที่กิ่งลาดตระเวนแล้ว (สังเกตได้จริง ไม่ใช่อนุมานจากค่าที่ตั้ง)
+	// คำขอเคลื่อนที่ปัจจุบันมุ่งไป AlertLocation = Branch Investigate เข้ามาแทนที่ Branch ลาดตระเวนแล้ว (สังเกตได้จริง ไม่ใช่อนุมานจากค่าที่ตั้ง)
 	const bool bMovingToAlert = PathComp->HasValidPath()
 		&& FVector::Dist2D(PathComp->GetPathDestination(), BlackboardComp->GetValueAsVector(AlertLocationKey)) <= ArrivalRadius;
 
@@ -305,7 +338,7 @@ void AEnemyAIController::CheckAbortAfterAlert()
 	}
 	else
 	{
-		// Observer Aborts ของ Decorator เป็น None: ค่าคีย์เปลี่ยนแล้ว แต่ Behavior Tree ยังอยู่กิ่งลาดตระเวนจนจบรอบ (แบบฝึกหัดข้อ 4)
+		// Observer Aborts ของ Decorator เป็น None: ค่าคีย์เปลี่ยนแล้ว แต่ Behavior Tree ยังอยู่ Branch ลาดตระเวนจนจบรอบ (แบบฝึกหัดข้อ 4)
 		UE_LOG(LogTemp, Warning, TEXT("[BT] Alerted is set but patrol was not aborted (Observer Aborts = None?)"));
 	}
 }
@@ -326,14 +359,14 @@ void AEnemyAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFoll
 		return;
 	}
 
-	// บทที่ 11: การถึงเป้าหมายที่ไล่ตามไม่เลื่อนจุดลาดตระเวนและไม่ล้างคีย์ใด กิ่ง Chase วน Move To -> Wait 0.5 ต่อจนกว่า Sight จะรายงานว่าหาย
+	// บทที่ 11: การถึงเป้าหมายที่ไล่ตามไม่เลื่อนจุดลาดตระเวนและไม่ล้างคีย์ใด Branch Chase วน Move To -> Wait 0.5 ต่อจนกว่า Sight จะรายงานว่าหาย
 	if (WasChaseArrival())
 	{
 		return;
 	}
 
 	// บทที่ 8: การมาถึง AlertLocation ไม่เลื่อนจุดลาดตระเวน และล้าง Alerted ให้ Decorator เห็นค่าเท็จ
-	// (ด้วย Observer Aborts แบบ Lower Priority Decorator ไม่ยุติกิ่งของตนเอง Wait 2.0 จึงเล่นจนจบ แล้ว Selector ตกไปกิ่งลาดตระเวน)
+	// (ด้วย Observer Aborts แบบ Lower Priority Decorator ไม่ยุติ Branch ของตนเอง Wait 2.0 จึงเล่นจนจบ แล้ว Selector ตกไป Branch ลาดตระเวน)
 	// บทที่ 12: กลไกเดียวกันนี้ทำให้การค้นหาจุดซ่อนของ BT_Enemy_EQS ทำงานต่อหลังบรรทัดนี้
 	if (WasInvestigateArrival())
 	{
@@ -351,9 +384,9 @@ void AEnemyAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFoll
 		return;
 	}
 
-	// กฎคงที่ (บันทึกจากการถดถอยของบทที่ 12): ทุกคำขอที่สำเร็จของกิ่งลาดตระเวนต้องมาถึงบรรทัดนี้
-	// บทที่เพิ่มกิ่งอื่นในภายหลังต้องจำแนกการมาถึงจาก "จุดหมายของคำขอที่เพิ่งจบ" (คีย์ Blackboard + ตำแหน่ง Pawn)
-	// ไม่ใช่จากสวิตช์โหมดของตัวละคร เพราะ Selector อาจตกมากิ่งลาดตระเวนขณะสวิตช์นั้นยังเปิดอยู่
+	// กฎคงที่ (บันทึกจากการถดถอยของบทที่ 12): ทุกคำขอที่สำเร็จของ Branch ลาดตระเวนต้องมาถึงบรรทัดนี้
+	// บทที่เพิ่ม Branch อื่นในภายหลังต้องจำแนกการมาถึงจาก "จุดหมายของคำขอที่เพิ่งจบ" (คีย์ Blackboard + ตำแหน่ง Pawn)
+	// ไม่ใช่จากสวิตช์โหมดของตัวละคร เพราะ Selector อาจตกมา Branch ลาดตระเวนขณะสวิตช์นั้นยังเปิดอยู่
 	// และ UPathFollowingComponent::OnPathFinished() ล้างเส้นทางก่อนแจ้ง OnMoveCompleted() จึงอ่านจุดหมายจากเส้นทางไม่ได้
 	const int32 Count = Enemy->PatrolPoints.Num();
 	// ผลที่คาด: LogTemp: [AI] Reached waypoint 1 of 3 (แล้ว 2 of 3, 3 of 3, วนกลับ 1 of 3 ...)

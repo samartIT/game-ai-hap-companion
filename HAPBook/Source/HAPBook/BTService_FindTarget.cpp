@@ -53,7 +53,7 @@ void UBTService_FindTarget::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, 
 	Memory->Candidates.Reset();
 	Memory->LastNearest.Reset();
 
-	// รวบรวมครั้งเดียวต่อการเข้ากิ่ง: GetAllActorsOfClass ค้นทั้งฉาก จึงไม่ทำใน TickNode (ความเป็นธรรมของการวัด)
+	// รวบรวมครั้งเดียวต่อการเข้า Branch: GetAllActorsOfClass ค้นทั้งฉาก จึงไม่ทำใน TickNode (ความเป็นธรรมของการวัด)
 	TArray<AActor*> Found;
 	UGameplayStatics::GetAllActorsOfClass(OwnerComp.GetWorld(), ATargetDummy::StaticClass(), Found);
 	for (AActor* Actor : Found)

@@ -2,7 +2,9 @@
 
 #include "HealthComponent.h"
 #include "GameFramework/Actor.h"
+#include "GameFramework/Controller.h"
 #include "GameFramework/DamageType.h"
+#include "Perception/AISense_Damage.h" // บทที่ 13: ReportDamageEvent
 
 const FString UHealthComponent::DamageTypePrefix(TEXT("DamageType_"));
 
@@ -56,6 +58,22 @@ void UHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage, c
 	// ชั้นสะพานเชื่อม: ผู้ฟังทุกราย (C++ ของ AEnemyCharacter หรือ Event Graph ของ BP_ThirdPersonCharacter) รับค่าเดียวกัน
 	OnHealthChanged.Broadcast(CurrentHealth, MaxHealth);
 
+	// บทที่ 13: รายงานเหตุนี้ต่อระบบรับรู้ (เอนจิ้นไม่รายงานเอง)
+	// ผู้กระทำ = Pawn ของ Instigator หากมี มิฉะนั้น Damage Causer
+	AActor* Attacker = DamageCauser;
+	if (InstigatedBy != nullptr
+		&& InstigatedBy->GetPawn() != nullptr)
+	{
+		Attacker = InstigatedBy->GetPawn();
+	}
+	if (Attacker != nullptr)
+	{
+		// EventLocation = ผู้กระทำ, HitLocation = ผู้ถูกกระทำ
+		UAISense_Damage::ReportDamageEvent(this, DamagedActor,
+			Attacker, Damage, Attacker->GetActorLocation(),
+			DamagedActor->GetActorLocation());
+	}
+
 	if (IsDead())
 	{
 		if (bLogDamage)
@@ -65,6 +83,14 @@ void UHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage, c
 		}
 		OnDeath.Broadcast();   // เจ้าของตัดสินใจเองว่า "ตาย" หมายถึงอะไร (ศัตรู: หยุด Behavior Tree ปิดการชน ทำลายใน 3 วินาที)
 	}
+}
+
+bool UHealthComponent::IsActorDead(const AActor* Actor)
+{
+	const UHealthComponent* Health = Actor != nullptr
+		? Actor->FindComponentByClass<UHealthComponent>()
+		: nullptr;
+	return Health != nullptr && Health->IsDead();
 }
 
 FString UHealthComponent::DamageLabel(const UDamageType* DamageType)

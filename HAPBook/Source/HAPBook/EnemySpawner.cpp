@@ -48,7 +48,7 @@ void AEnemySpawner::BeginPlay()
 		return;
 	}
 
-	// ลำดับสำคัญ: หุ่นก่อนศัตรู เพราะ Service รวบรวมเป้าหมายที่เป็นไปได้ครั้งเดียวเมื่อกิ่งลาดตระเวนเริ่ม (OnBecomeRelevant / Receive Activation AI)
+	// ลำดับสำคัญ: หุ่นก่อนศัตรู เพราะ Service รวบรวมเป้าหมายที่เป็นไปได้ครั้งเดียวเมื่อ Branch ลาดตระเวนเริ่ม (OnBecomeRelevant / Receive Activation AI)
 	const int32 Dummies = SpawnDummies(*NavSys);
 	int32 Skipped = 0;
 	const int32 Enemies = SpawnEnemies(*NavSys, Skipped);

@@ -9,6 +9,8 @@
 //                ระบบรับรู้เอง (Component + Sense Sight/Hearing + ค่าของ Sense) อยู่ใน BP_EnemyAIController ซึ่งเป็น Blueprint ลูกของคลาสนี้
 // บทที่ 12 เพิ่ม: คีย์ SearchLocation (ผลของ EQS_SearchHidden), ผู้สังเกตคีย์นี้พร้อมทรงกลมดีบัก (เครื่องมือวัด)
 //                และการจำแนกการมาถึงจุดซ่อน — Query เองรันโดย Run EQS Query ใน BT_Enemy_EQS ไม่ใช่โดยคลาสนี้
+// บทที่ 13 เพิ่ม (ใน OnTargetPerceptionUpdated เท่านั้น): สาขาของ Sense Damage (ผู้กระทำที่เป็น Hostile กลายเป็นเป้าหมาย)
+//                และการเพิกเฉยเมื่อร่างของตนหรือ Actor ที่รับรู้ตายแล้ว — การโจมตีเองเป็นของ BTTask_Attack ใน BT_Enemy_Combat
 
 #pragma once
 
@@ -28,16 +30,16 @@ class HAPBOOK_API AEnemyAIController : public AAIController
 public:
 	AEnemyAIController();
 
-	// ชื่อคีย์ชนิด Vector ใน BB_Enemy ที่ Node Move To ของกิ่งลาดตระเวนอ่านเป็นจุดหมาย (บทที่ 7)
+	// ชื่อคีย์ชนิด Vector ใน BB_Enemy ที่ Node Move To ของ Branch ลาดตระเวนอ่านเป็นจุดหมาย (บทที่ 7)
 	static const FName PatrolLocationKey;
 
-	// บทที่ 8: คีย์ชนิด Bool ที่ Decorator Blackboard (Is Set, Observer Aborts: Lower Priority) ของกิ่ง Investigate สังเกต
+	// บทที่ 8: คีย์ชนิด Bool ที่ Decorator Blackboard (Is Set, Observer Aborts: Lower Priority) ของ Branch Investigate สังเกต
 	static const FName AlertedKey;
 
-	// บทที่ 8: คีย์ชนิด Vector ที่ Node Move To ของกิ่ง Investigate อ่าน
+	// บทที่ 8: คีย์ชนิด Vector ที่ Node Move To ของ Branch Investigate อ่าน
 	static const FName AlertLocationKey;
 
-	// บทที่ 11: คีย์ชนิด Object (Actor) ที่ Decorator Blackboard (Is Set, Observer Aborts: Both) ของกิ่ง Chase สังเกต และ Move To ของกิ่งนั้นอ่าน
+	// บทที่ 11: คีย์ชนิด Object (Actor) ที่ Decorator Blackboard (Is Set, Observer Aborts: Both) ของ Branch Chase สังเกต และ Move To ของ Branch นั้นอ่าน
 	static const FName TargetActorKey;
 
 	// บทที่ 11: คีย์ชนิด Vector = ตำแหน่งสิ่งเร้าล่าสุดของการมองเห็นเป้าหมายที่เป็น Hostile (ความจำของเป้าหมาย) เขียนทั้งเมื่อเห็นและเมื่อหาย
@@ -84,7 +86,7 @@ private:
 	// ระยะที่ถือว่า "มาถึง": Acceptable Radius 50 ของ Node Move To + รัศมีแคปซูล 34 + ส่วนเผื่อ
 	static constexpr float ArrivalRadius = 150.0f;
 
-	// บทที่ 11: ระยะที่ถือว่า "ถึงเป้าหมายที่ไล่ตาม": Acceptable Radius 150 ของ Move To ของกิ่ง Chase + แคปซูลทั้งสอง + ส่วนเผื่อ
+	// บทที่ 11: ระยะที่ถือว่า "ถึงเป้าหมายที่ไล่ตาม": Acceptable Radius 150 ของ Move To ของ Branch Chase + แคปซูลทั้งสอง + ส่วนเผื่อ
 	static constexpr float ChaseArrivalRadius = 300.0f;
 
 	// ดัชนีของจุดลาดตระเวนปัจจุบัน (0..Num-1) วนกลับเมื่อถึงจุดสุดท้าย
@@ -102,6 +104,7 @@ private:
 	// ปลายทางของ Delegate OnTargetPerceptionUpdated (Dynamic Delegate จึงต้องเป็น UFUNCTION)
 	// บันทึก Sight gained ของทุกสิ่ง แต่เขียน Blackboard เฉพาะเมื่อความสัมพันธ์ต่อ Actor เป็น Hostile:
 	// Sight เห็น -> LastKnownLocation + TargetActor; Sight หาย -> LastKnownLocation/AlertLocation + Alerted แล้วล้าง TargetActor; Hearing -> AlertLocation + Alerted
+	// บทที่ 13: Damage -> LastKnownLocation + TargetActor (บันทึก Damage from ของทุกผู้กระทำ); ร่างของตนหรือ Actor ที่ตายแล้ว -> ไม่ทำสิ่งใด
 	UFUNCTION()
 	void OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
 
