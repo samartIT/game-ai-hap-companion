@@ -38,9 +38,9 @@ EBTNodeResult::Type UBTTask_FaceTarget::ExecuteTask(UBehaviorTreeComponent& Owne
 		return EBTNodeResult::Failed;   // ข้อมูลไม่ครบ: ล้มเหลวอย่างชัดเจน ไม่ค้าง
 	}
 
-	// พฤติกรรม: จุดสนใจของ Controller + หมุนร่างทันที
-	// (AEnemyCharacter ตั้ง bUseControllerRotationYaw = false จุดสนใจอย่างเดียวจึงไม่หมุนร่าง และ bOrientRotationToMovement จะหมุนกลับเมื่อเดินต่อ)
-	Controller->SetFocus(Target);
+	// พฤติกรรม: หมุนร่างทันที (AEnemyCharacter ตั้ง bUseControllerRotationYaw = false ทิศของ Controller จึงไม่หมุนร่าง
+	// และ bOrientRotationToMovement จะหมุนกลับเมื่อเดินต่อ) ไม่ตั้งจุดสนใจ: เมื่อไม่มีจุดสนใจ ทิศการมองของ Controller
+	// ตามทิศของร่าง (หันหาหุ่นระหว่าง Wait) และตามทิศเดินเมื่อเดินต่อ
 	const FVector ToTarget = Target->GetActorLocation() - Pawn->GetActorLocation();
 	Pawn->SetActorRotation(FRotator(0.0f, ToTarget.Rotation().Yaw, 0.0f));
 	Blackboard->SetValueAsObject(LastFacedTargetKey.SelectedKeyName, Target);   // หันครั้งเดียวต่อเป้าหมาย

@@ -1,4 +1,4 @@
-// บทที่ 9 — Task ใน C++ ที่จบในเฟรมเดียว: ตั้งจุดสนใจของ Controller ที่ NearestTarget, หมุนร่างให้หันหา,
+// บทที่ 9 — Task ใน C++ ที่จบในเฟรมเดียว: หมุนร่างให้หันหา NearestTarget (ไม่ตั้งจุดสนใจของ Controller),
 // เขียน LastFacedTarget (เพื่อให้ Decorator Target In Range เป็นเท็จสำหรับเป้าหมายนี้) แล้วคืน Succeeded
 // ไม่มีสถานะต่อ AI จึงไม่ต้องการหน่วยความจำจำเพาะ
 

@@ -14,7 +14,7 @@ void UEnvQueryContext_PerceivedTarget::ProvideContext(
 		FindQuerierBlackboard(QueryInstance);
 	if (BlackboardComp == nullptr)
 	{
-		// ผู้ถามไม่ใช่ AI (EQS Testing Pawn): ใช้ตัวช่วยสาธิต
+		// Querier ไม่ใช่ AI (EQS Testing Pawn): ใช้ตัวช่วยสาธิต
 		Super::ProvideContext(QueryInstance, ContextData);
 		return;
 	}
@@ -25,7 +25,7 @@ void UEnvQueryContext_PerceivedTarget::ProvideContext(
 			AEnemyAIController::TargetActorKey));
 	if (Target == nullptr)
 	{
-		// AI ที่ไม่ได้รับรู้เป้าหมายใด: ไม่บันทึก Query ได้ 0 รายการ
+		// ไม่ได้รับรู้เป้าหมายใด: ไม่บันทึก Query ได้ 0 รายการ
 		return;
 	}
 

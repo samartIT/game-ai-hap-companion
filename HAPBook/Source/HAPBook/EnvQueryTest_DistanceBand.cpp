@@ -12,9 +12,9 @@ UEnvQueryTest_DistanceBand::UEnvQueryTest_DistanceBand(
 	Cost = EEnvTestCost::Low;
 	// รองรับทุกรายการที่มีตำแหน่ง (จุดและ Actor)
 	ValidItemType = UEnvQueryItemType_VectorBase::StaticClass();
-	// ค่าดิบเป็น float: ตัวแก้ไขแสดงตัวกรองและสมการให้คะแนน
+	// ค่าที่วัดได้เป็น float: ตัวแก้ไขแสดงตัวกรองและสมการให้คะแนน
 	SetWorkOnFloatValues(true);
-	// ค่าเริ่มต้นเท่านั้น; Query ของบทนี้ตั้งเป็น Context ของเป้าหมาย
+	// ค่าเริ่มต้นเท่านั้น: Query ของบทนี้ใช้ Context ของเป้าหมาย
 	DistanceTo = UEnvQueryContext_Querier::StaticClass();
 	PreferredDistance.DefaultValue = 600.0f;
 	Tolerance.DefaultValue = 300.0f;
@@ -29,7 +29,7 @@ void UEnvQueryTest_DistanceBand::RunTest(
 		return;
 	}
 
-	// ผูกพารามิเตอร์กับ Query ที่รันอยู่ (ค่าอาจมาจาก Query Config)
+	// ผูกพารามิเตอร์กับ Query ที่รัน (ค่าอาจมาจาก Query Config)
 	FloatValueMin.BindData(QueryOwner, QueryInstance.QueryID);
 	FloatValueMax.BindData(QueryOwner, QueryInstance.QueryID);
 	PreferredDistance.BindData(QueryOwner, QueryInstance.QueryID);
@@ -58,7 +58,8 @@ void UEnvQueryTest_DistanceBand::RunTest(
 		{
 			const float Distance = static_cast<float>(
 				FVector::Dist(ItemLocation, ContextLocation));
-			// ค่าดิบ: 1 ที่ระยะพอดี ลดเชิงเส้นเป็น 0 ที่ขอบแถบ
+			// ค่าที่วัดได้: 1 ที่ระยะพอดี
+			// ลดเชิงเส้นเป็น 0 ที่ขอบแถบ
 			const float Raw = FMath::Max(0.0f,
 				1.0f - FMath::Abs(Distance - Preferred) / Band);
 			It.SetScore(TestPurpose, FilterType, Raw,

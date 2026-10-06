@@ -39,8 +39,8 @@ UEnvQueryContext_Target::FindQuerierBlackboard(
 {
 	const UObject* Querier = QueryInstance.Owner.Get();
 
-	// Run EQS Query ส่ง Pawn เป็นผู้ถาม; FEnvQueryRequest อาจส่ง
-	// Controller มาเอง จึงรองรับทั้งสองกรณี
+	// Run EQS Query ส่ง Pawn เป็น Querier; FEnvQueryRequest
+	// อาจส่ง Controller มาเอง จึงรองรับทั้งสองกรณี
 	const AAIController* AI = Cast<AAIController>(Querier);
 	if (const APawn* Pawn = Cast<APawn>(Querier))
 	{

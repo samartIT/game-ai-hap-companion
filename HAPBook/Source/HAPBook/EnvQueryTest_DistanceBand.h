@@ -32,12 +32,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "DistanceBand")
 	FAIDataProviderFloatValue PreferredDistance;
 
-	// ความกว้างของแถบ: ค่าดิบเป็น 0 เมื่อห่างจากระยะที่ต้องการ
-	// เท่านี้หรือมากกว่า ค่าเริ่มต้น 300
+	// ความกว้างของแถบ: ค่าที่วัดได้เป็น 0 เมื่อห่างจากระยะ
+	// ที่ต้องการเท่านี้หรือมากกว่า ค่าเริ่มต้น 300
 	UPROPERTY(EditDefaultsOnly, Category = "DistanceBand")
 	FAIDataProviderFloatValue Tolerance;
 
-	// ค่าดิบต่อรายการ: r = max(0, 1 - |d - P| / T)
+	// ค่าที่วัดได้ต่อรายการ: r = max(0, 1 - |d - P| / T)
 	virtual void RunTest(
 		FEnvQueryInstance& QueryInstance) const override;
 

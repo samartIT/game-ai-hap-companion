@@ -14,7 +14,7 @@ void UEnvQueryContext_LastKnownLocation::ProvideContext(
 		FindQuerierBlackboard(QueryInstance);
 	if (BlackboardComp == nullptr)
 	{
-		// ผู้ถามไม่ใช่ AI: ตัวช่วยสาธิตแทนตำแหน่งที่พบล่าสุด
+		// Querier ไม่ใช่ AI: ตัวช่วยสาธิตแทนตำแหน่งที่พบล่าสุด
 		Super::ProvideContext(QueryInstance, ContextData);
 		return;
 	}

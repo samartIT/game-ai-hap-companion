@@ -1,7 +1,7 @@
 // บทที่ 12 — Context ของตำแหน่งที่พบล่าสุด (Last Known Location)
-// อ่านคีย์ LastKnownLocation ใน Blackboard ของผู้ถาม (บทที่ 11 เขียน
+// อ่านคีย์ LastKnownLocation ใน Blackboard ของ Querier (บทที่ 11 เขียน
 // ทั้งเมื่อเห็นและเมื่อหาย และไม่ล้าง) แล้วบันทึกเป็นตำแหน่ง (Point)
-// ผู้ถามที่ไม่มี Blackboard (EQS Testing Pawn) ได้ตัวช่วยสาธิตของคลาสแม่
+// Querier ที่ไม่มี Blackboard (EQS Testing Pawn) ได้ตัวช่วยสาธิตของคลาสแม่
 
 #pragma once
 
