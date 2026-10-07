@@ -22,7 +22,8 @@ class HAPBOOK_API ABenchmarkSpawner : public AActor
 public:
 	ABenchmarkSpawner();
 
-	// แบบที่วัด: BP_Arm_A, BenchmarkActorCpp หรือ BP_Arm_C
+	// แบบที่วัด: BP_Arm_PureBP, BenchmarkActorCpp
+	// หรือ BP_Arm_Hybrid
 	UPROPERTY(EditAnywhere, Category = "Benchmark")
 	TSubclassOf<ABenchmarkActorBase> ArmClass;
 

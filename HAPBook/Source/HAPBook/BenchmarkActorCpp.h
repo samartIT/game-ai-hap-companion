@@ -1,5 +1,5 @@
-// บทที่ 14 — สถาปัตยกรรมแบบ B (Pure C++): Tick() เรียก RunWork() โดยตรง
-// คลาส Native นี้คือ Arm Class ของแบบ B โดยตรง ไม่มีคลาสลูกแบบ Blueprint โดยเจตนา:
+// บทที่ 14 — สถาปัตยกรรม C++ ล้วน (Pure C++): Tick() เรียก RunWork() โดยตรง
+// คลาส Native นี้คือ Arm Class ของ C++ ล้วนโดยตรง ไม่มีคลาสลูกแบบ Blueprint โดยเจตนา:
 // Actor ที่เป็นคลาส Blueprint จ่ายต้นทุนของ Event Tick ทุกเฟรม (AActor::Tick) ซึ่งคือสิ่งที่การเปรียบเทียบต้องแยกออก
 
 #pragma once

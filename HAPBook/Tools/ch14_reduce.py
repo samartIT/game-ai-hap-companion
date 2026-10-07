@@ -4,9 +4,13 @@
 ใช้คอลัมน์ GameThreadTime ของแถวที่เป็นเฟรม (แถวแรก = ชื่อคอลัมน์; แถวของเฟรมจบที่แถวชื่อคอลัมน์ซ้ำ
 ซึ่งขึ้นต้นด้วย EVENTS หรือแถวข้อมูลประกอบที่ขึ้นต้นด้วย '[') เรียงค่าแล้วตัดเฟรมร้อยละ 5 ที่ปลายบน
 และร้อยละ 5 ที่ปลายล่าง (รวมร้อยละ 10 เท่ากับ =TRIMMEAN(ช่วง, 0.1) ซึ่งอาร์กิวเมนต์ที่สองคือสัดส่วนรวม)
-ค่าเฉลี่ยของค่าที่เหลือคือค่าตัวแทนของรอบ ต่อเซลล์ (แบบ, N, I) พิมพ์ค่าเฉลี่ย ± ส่วนเบี่ยงเบนมาตรฐาน
+ค่าเฉลี่ยของค่าที่เหลือคือค่าตัวแทนของรอบ ต่อเซลล์ (สถาปัตยกรรม, N, I) พิมพ์ค่าเฉลี่ย ± ส่วนเบี่ยงเบนมาตรฐาน
 ของค่าตัวแทนจากสามรอบ (STDEV.S, n - 1: ความต่างระหว่างการเปิดโปรแกรมแต่ละครั้ง ไม่ใช่ความแกว่งระหว่างเฟรม)
-ค่าที่ใช้ในการอ่านผล และแถวของตารางทั้งสองของบทในรูป LaTeX
+ค่าที่ใช้ในการอ่านผล และร่างของตารางทั้งสองของบทในรูป LaTeX
+
+ชื่อสถาปัตยกรรมในผลลัพธ์: BP = Blueprint ล้วน, C++ = C++ ล้วน, Hybrid = แบบผสม
+ชื่อคลาสในชื่อไฟล์: BP_Arm_PureBP_C, BenchmarkActorCpp, BP_Arm_Hybrid_C
+(ไฟล์ที่บันทึกก่อนเปลี่ยนชื่อ Asset ใช้ BP_Arm_A_C และ BP_Arm_C_C ซึ่งสคริปต์อ่านได้เช่นกัน)
 
 วิธีใช้ (Command Prompt ที่โฟลเดอร์ companion/HAPBook/ ต้องมี Python 3):
     python Tools\\ch14_reduce.py [โฟลเดอร์ CSV] [--exclude ชื่อไฟล์.csv ...]
@@ -15,7 +19,11 @@
 """
 import csv, glob, math, os, re, statistics, sys
 
-ARM = {'BP_Arm_A_C': 'A', 'BenchmarkActorCpp': 'B', 'BP_Arm_C_C': 'C'}
+ARM = {
+    'BP_Arm_PureBP_C': 'BP', 'BenchmarkActorCpp': 'C++', 'BP_Arm_Hybrid_C': 'Hybrid',
+    'BP_Arm_A_C': 'BP', 'BP_Arm_C_C': 'Hybrid',   # ชื่อเดิมก่อนเปลี่ยนชื่อ Asset
+}
+ARMS = ('BP', 'C++', 'Hybrid')                    # ลำดับคอลัมน์ของตาราง
 NAME = re.compile(r'^Bench_(?P<cls>.+)_N(?P<n>\d+)_I(?P<i>\d+)_(?P<stamp>\d{8}_\d{6})\.csv$')
 SWEEP1 = [(25, 1000), (50, 1000), (100, 1000), (200, 1000)]
 SWEEP2 = [(100, 100), (100, 1000), (100, 5000)]
@@ -47,7 +55,7 @@ def trimmed_mean(values, cut=CUT_PER_END):
 
 
 def fmt(mean, sd, arm):
-    digits = 1 if arm == 'A' and mean >= 100 else 2
+    digits = 1 if arm == 'BP' and mean >= 100 else 2
     return f'{mean:.{digits}f} $\\pm$ {sd:.{digits}f}'
 
 
@@ -69,7 +77,7 @@ def main(folder, exclude):
         rep, n_frames, k = trimmed_mean(vals)
         key = (ARM[m['cls']], int(m['n']), int(m['i']))
         cells.setdefault(key, []).append(rep)
-        print(f"{key[0]} N={key[1]:<4} I={key[2]:<5} {m['stamp']}  frames={n_frames:<6} trimmed {k}/end  rep={rep:.3f} ms")
+        print(f"{key[0]:<6} N={key[1]:<4} I={key[2]:<5} {m['stamp']}  frames={n_frames:<6} trimmed {k}/end  rep={rep:.3f} ms")
 
     print('\nper cell (mean +- SD over runs):')
     summary = {}
@@ -79,32 +87,35 @@ def main(folder, exclude):
         sd = statistics.stdev(reps) if len(reps) > 1 else float('nan')
         summary[key] = (mean, sd)
         warn = '' if len(reps) == 3 else f'   <-- {len(reps)} run(s), protocol needs 3'
-        print(f'{key[0]} N={key[1]:<4} I={key[2]:<5} n={len(reps)}  {mean:.3f} +- {sd:.3f} ms{warn}')
+        print(f'{key[0]:<6} N={key[1]:<4} I={key[2]:<5} n={len(reps)}  {mean:.3f} +- {sd:.3f} ms{warn}')
 
     print('\nderived (narration):')
     for n, i in SWEEP1 + [(100, 100), (100, 5000)]:
-        a, b, c = (summary.get((x, n, i), (float('nan'),))[0] for x in 'ABC')
-        print(f'N={n:<4} I={i:<5} A/B={a / b:7.1f}x  C-B={c - b:6.3f} ms  (C-B)/N={1000 * (c - b) / n:5.2f} us/actor')
-    if all((x, n, 1000) in summary for x in 'AB' for n in (25, 200)):
-        sa = (summary[('A', 200, 1000)][0] - summary[('A', 25, 1000)][0]) / 175
-        print(f'Arm A slope in N at I=1000: {sa:.3f} ms per actor per frame')
-    if all((x, 100, i) in summary for x in 'AB' for i in (100, 5000)):
-        si = (summary[('A', 100, 5000)][0] - summary[('A', 100, 100)][0]) / 4900 / 100
-        sb = (summary[('B', 100, 5000)][0] - summary[('B', 100, 100)][0]) / 4900 / 100
-        print(f'Arm A slope in I at N=100: {1000 * si:.3f} us per iteration per actor')
-        print(f'Arm B slope in I at N=100: {1e6 * sb:.2f} ns per iteration per actor')
+        bp, cpp, hyb = (summary.get((x, n, i), (float('nan'),))[0] for x in ARMS)
+        print(f'N={n:<4} I={i:<5} BP/C++={bp / cpp:7.1f}x  Hybrid-C++={hyb - cpp:6.3f} ms  '
+              f'(Hybrid-C++)/N={1000 * (hyb - cpp) / n:5.2f} us/actor')
+    if all((x, n, 1000) in summary for x in ARMS[:2] for n in (25, 200)):
+        sa = (summary[('BP', 200, 1000)][0] - summary[('BP', 25, 1000)][0]) / 175
+        print(f'BP slope in N at I=1000: {sa:.3f} ms per actor per frame')
+    if all((x, 100, i) in summary for x in ARMS[:2] for i in (100, 5000)):
+        si = (summary[('BP', 100, 5000)][0] - summary[('BP', 100, 100)][0]) / 4900 / 100
+        sb = (summary[('C++', 100, 5000)][0] - summary[('C++', 100, 100)][0]) / 4900 / 100
+        print(f'BP slope in I at N=100: {1000 * si:.3f} us per iteration per actor')
+        print(f'C++ slope in I at N=100: {1e6 * sb:.2f} ns per iteration per actor')
 
     def row(first, n, i):
         out = []
-        for arm in 'ABC':
+        for arm in ARMS:
             v = summary.get((arm, n, i))
             out.append(fmt(v[0], v[1], arm) if v else '-')
         return f'        {first} & ' + ' & '.join(out) + ' \\\\'
 
     print('\n% tab:ch14_instance_sweep (I = 1,000)')
+    print('        N & ' + ' & '.join(ARMS) + ' \\\\')
     for n, i in SWEEP1:
         print(row(str(n), n, i))
     print('\n% tab:ch14_iteration_sweep (N = 100)')
+    print('        I & ' + ' & '.join(ARMS) + ' \\\\')
     for n, i in SWEEP2:
         print(row({100: '100', 1000: '1{,}000', 5000: '5{,}000'}[i], n, i))
 

@@ -42,7 +42,8 @@ void ABenchmarkSpawner::BeginPlay()
 		// ค่าที่ได้รับและรูปแบบที่ยอมรับ: แก้ -BenchArm= ได้ทันที
 		UE_LOG(LogTemp, Warning,
 			TEXT("[Bench] Arm Class \"%s\" not found; use ")
-			TEXT("/Game/Blueprints/BP_Arm_A.BP_Arm_A_C or ")
+			TEXT("/Game/Blueprints/")
+			TEXT("BP_Arm_PureBP.BP_Arm_PureBP_C or ")
 			TEXT("/Script/HAPBook.BenchmarkActorCpp"),
 			*ArmArgument);
 		return;
@@ -70,7 +71,7 @@ void ABenchmarkSpawner::ReadCommandLine()
 	if (FParse::Value(Cmd, TEXT("BenchArm="), ArmArgument))
 	{
 		// เส้นทางของคลาสที่คอมไพล์แล้ว เช่น
-		// /Game/Blueprints/BP_Arm_A.BP_Arm_A_C
+		// /Game/Blueprints/BP_Arm_PureBP.BP_Arm_PureBP_C
 		ArmClass = LoadClass<ABenchmarkActorBase>(
 			nullptr, *ArmArgument);
 	}

@@ -1,6 +1,6 @@
 // บทที่ 14 — คลาสฐานของชุดทดสอบ: Actor ไร้ Mesh ที่ถือภาระงานร่วมของทั้งสามสถาปัตยกรรม
 // RunWork() นิยามครั้งเดียวที่นี่ สถาปัตยกรรมทั้งสามต่างกันเฉพาะเส้นทางที่เรียกภาระงานทุกเฟรม
-// แบบ A (BP_Arm_A) และแบบ C (BP_Arm_C) เป็นคลาสลูกแบบ Blueprint แบบ B คือ ABenchmarkActorCpp
+// Blueprint ล้วน (BP_Arm_PureBP) และแบบผสม (BP_Arm_Hybrid) เป็นคลาสลูกแบบ Blueprint ส่วน C++ ล้วนคือ ABenchmarkActorCpp
 // Tick() ของคลาสฐานว่างโดยเจตนา (กล่องคำเตือนของบท) และ Abstract ทำให้เลือกคลาสฐานเป็น Arm Class ไม่ได้
 
 #pragma once
