@@ -37,6 +37,16 @@ void ABenchmarkSpawner::BeginPlay()
 {
 	Super::BeginPlay();
 	ReadCommandLine();
+	if (ArmClass == nullptr && !ArmArgument.IsEmpty())
+	{
+		// ค่าที่ได้รับและรูปแบบที่ยอมรับ: แก้ -BenchArm= ได้ทันที
+		UE_LOG(LogTemp, Warning,
+			TEXT("[Bench] Arm Class \"%s\" not found; use ")
+			TEXT("/Game/Blueprints/BP_Arm_A.BP_Arm_A_C or ")
+			TEXT("/Script/HAPBook.BenchmarkActorCpp"),
+			*ArmArgument);
+		return;
+	}
 	if (ArmClass == nullptr)
 	{
 		UE_LOG(LogTemp, Warning,
@@ -57,13 +67,12 @@ void ABenchmarkSpawner::BeginPlay()
 void ABenchmarkSpawner::ReadCommandLine()
 {
 	const TCHAR* Cmd = FCommandLine::Get();
-	FString ArmPath;
-	if (FParse::Value(Cmd, TEXT("BenchArm="), ArmPath))
+	if (FParse::Value(Cmd, TEXT("BenchArm="), ArmArgument))
 	{
 		// เส้นทางของคลาสที่คอมไพล์แล้ว เช่น
 		// /Game/Blueprints/BP_Arm_A.BP_Arm_A_C
 		ArmClass = LoadClass<ABenchmarkActorBase>(
-			nullptr, *ArmPath);
+			nullptr, *ArmArgument);
 	}
 	FParse::Value(Cmd, TEXT("BenchN="), Count);
 	FParse::Value(Cmd, TEXT("BenchI="), Iterations);

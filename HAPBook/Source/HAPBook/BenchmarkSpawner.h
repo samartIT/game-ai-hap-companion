@@ -75,6 +75,9 @@ private:
 	TObjectPtr<UBillboardComponent> EditorIcon;
 #endif
 
+	// ค่า -BenchArm= ที่ได้รับ (ว่าง = ไม่มีในบรรทัดคำสั่ง)
+	FString ArmArgument;
+
 	double StartSeconds = 0.0;  // นาฬิกาจริงเมื่อ Spawn เสร็จ
 	int32 CaptureStage = 0;     // 0 อุ่นเครื่อง 1 บันทึก 2 จบ
 };
