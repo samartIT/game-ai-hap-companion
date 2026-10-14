@@ -55,7 +55,7 @@ void UHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage, c
 			*DamagedActor->GetClass()->GetName(), Damage, *DamageLabel(DamageType), CurrentHealth, MaxHealth);
 	}
 
-	// ชั้นสะพานเชื่อม: ผู้ฟังทุกราย (C++ ของ AEnemyCharacter หรือ Event Graph ของ BP_ThirdPersonCharacter) รับค่าเดียวกัน
+	// ชั้นสะพานเชื่อม: ตัวรับฟังทุกราย (C++ ของ AEnemyCharacter หรือ Event Graph ของ BP_ThirdPersonCharacter) รับค่าเดียวกัน
 	OnHealthChanged.Broadcast(CurrentHealth, MaxHealth);
 
 	// บทที่ 13: รายงานเหตุนี้ต่อระบบรับรู้ (เอนจิ้นไม่รายงานเอง)

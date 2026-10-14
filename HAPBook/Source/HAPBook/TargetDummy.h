@@ -26,7 +26,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Dummy")
 	FName DummyName = TEXT("Dummy");
 
-	// ป้ายตามชื่อ: ทำงานทั้งในตัวแก้ไข (เมื่อแก้ DummyName) และตอนโหลดแผนที่
+	// ป้ายตามชื่อ: ทำงานทั้งใน Editor (เมื่อแก้ DummyName) และตอนโหลดแผนที่
 	virtual void OnConstruction(const FTransform& Transform) override;
 
 protected:

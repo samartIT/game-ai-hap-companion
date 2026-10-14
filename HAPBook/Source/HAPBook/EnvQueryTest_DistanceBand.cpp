@@ -8,11 +8,11 @@ UEnvQueryTest_DistanceBand::UEnvQueryTest_DistanceBand(
 	const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	// อ่านข้อมูลและคำนวณเท่านั้น (ตัวแก้ไขใช้จัดลำดับ)
+	// อ่านข้อมูลและคำนวณเท่านั้น (Editor ใช้จัดลำดับ)
 	Cost = EEnvTestCost::Low;
 	// รองรับทุกรายการที่มีตำแหน่ง (จุดและ Actor)
 	ValidItemType = UEnvQueryItemType_VectorBase::StaticClass();
-	// ค่าที่วัดได้เป็น float: ตัวแก้ไขแสดงตัวกรองและสมการให้คะแนน
+	// ค่าที่วัดได้เป็น float: Editor แสดงตัวกรองและสมการให้คะแนน
 	SetWorkOnFloatValues(true);
 	// ค่าเริ่มต้นเท่านั้น: Query ของบทนี้ใช้ Context ของเป้าหมาย
 	DistanceTo = UEnvQueryContext_Querier::StaticClass();

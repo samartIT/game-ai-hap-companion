@@ -7,7 +7,7 @@
 //                ตัวรับสิ่งเร้า OnTargetPerceptionUpdated ที่เขียนความรู้ลง Blackboard เฉพาะเมื่อความสัมพันธ์เป็น Hostile
 //                และสวิตช์เปิด/ปิด Listener ตาม bPerceptionEnabled ของร่าง
 //                ระบบรับรู้เอง (Component + Sense Sight/Hearing + ค่าของ Sense) อยู่ใน BP_EnemyAIController ซึ่งเป็น Blueprint ลูกของคลาสนี้
-// บทที่ 12 เพิ่ม: คีย์ SearchLocation (ผลของ EQS_SearchHidden), ผู้สังเกตคีย์นี้พร้อมทรงกลมดีบัก (เครื่องมือวัด)
+// บทที่ 12 เพิ่ม: คีย์ SearchLocation (ผลของ EQS_SearchHidden), ผู้สังเกตคีย์นี้พร้อมทรงกลม Debug (เครื่องมือวัด)
 //                และการจำแนกการมาถึงจุดซ่อน — Query เองรันโดย Run EQS Query ใน BT_Enemy_EQS ไม่ใช่โดยคลาสนี้
 // บทที่ 13 เพิ่ม (ใน OnTargetPerceptionUpdated เท่านั้น): สาขาของ Sense Damage (ผู้กระทำที่เป็น Hostile กลายเป็นเป้าหมาย)
 //                และการเพิกเฉยเมื่อร่างของตนหรือ Actor ที่รับรู้ตายแล้ว — การโจมตีเองเป็นของ BTTask_Attack ใน BT_Enemy_Combat
@@ -122,7 +122,7 @@ private:
 		const UBlackboardComponent& ChangedBlackboard,
 		FBlackboard::FKey ChangedKey);
 
-	// เครื่องมือวัด: ทรงกลมดีบัก (ไม่มีใน Shipping/Test)
+	// เครื่องมือวัด: ทรงกลม Debug (ไม่มีใน Shipping/Test)
 	void DrawSearchLocation(const FVector& Location) const;
 	static constexpr float SearchSphereRadius = 60.0f;
 	static constexpr float SearchSphereSeconds = 3.0f;

@@ -10,7 +10,7 @@
 - Microsoft Visual C++ Build Tools (Build Tools for Visual Studio) พร้อมเวิร์กโหลด "Desktop development with C++" และ ".NET desktop build tools" (ขั้นตอนอยู่ในภาคผนวก ก ของงานเขียน)
 - .NET runtime รุ่นที่ UnrealBuildTool ของ UE 5.8 ต้องการ ตรวจสอบรุ่นที่ต้องการได้จากค่า `framework.version` ในไฟล์ `Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.runtimeconfig.json` ของเอนจิ้น แล้วเทียบกับผลของคำสั่ง `dotnet --list-runtimes` หากไม่มีรุ่นหลักที่ตรงกัน ให้ดูวิธีแก้ในหัวข้อ "ปัญหาที่พบบ่อย" ของ `docs/ch02.md`
 
-การเปิดโปรเจกต์ Unreal ทำโดยเปิดไฟล์ `HAPBook.uproject` ด้วย Rider โดยตรง ไฟล์โซลูชันที่เอนจิ้นสร้างขึ้นเป็นทางเลือกสำรองเท่านั้น
+การเปิดโปรเจกต์ Unreal ทำโดยเปิดไฟล์ `HAPBook.uproject` ด้วย Rider โดยตรง ไฟล์ Solutionที่เอนจิ้นสร้างขึ้นเป็นทางเลือกสำรองเท่านั้น
 
 ชุดโค้ดประกอบทั้งหมดได้รับการทดสอบบนสภาพแวดล้อมข้างต้นเท่านั้น ซึ่งเป็นสภาพแวดล้อมเดียวกับที่ใช้ทดสอบเนื้อหาในงานเขียน
 
@@ -20,7 +20,7 @@
 
 | บท | โค้ด | คู่มือ |
 |---|---|---|
-| 1 | `ch01-cpp/Ch01.sln` (โซลูชันสำหรับ Rider ประกอบด้วยโปรเจกต์คอนโซล 8 โปรเจกต์) | `docs/ch01.md` |
+| 1 | `ch01-cpp/Ch01.sln` (Solution สำหรับ Rider ประกอบด้วยโปรเจกต์คอนโซล 8 โปรเจกต์) | `docs/ch01.md` |
 | 2 เป็นต้นไป | `HAPBook/` (โปรเจกต์ UE 5.8 เปิดด้วย `HAPBook.uproject`) | `docs/ch02.md`, `docs/ch03.md`, … |
 
 ## โครงสร้าง
@@ -30,19 +30,19 @@ ch01-cpp/        บทที่ 1: C++ มาตรฐาน เปิดด้
 HAPBook/         บทที่ 2 เป็นต้นไป: โปรเจกต์ Unreal Engine 5.8 หนึ่งโปรเจกต์ที่เติบโตทีละบท
   Content/Maps/L_ChNN   แผนที่ประจำบท: Actor สาธิตของบทนั้นวางไว้แล้ว เปิดแล้วกด Play ได้ทันที
   Content/Maps/L_Book   พื้นเปล่าสำหรับใช้เป็นแม่แบบ ไม่มี Actor สาธิต
-  Content/ThirdPerson/  แผนที่และ Blueprint ของเทมเพลต Third Person (ใช้ตั้งแต่บทที่ 7)
-  Source/HAPBook/       คลาส C++ ของงานเขียน (ที่ราก) เคียงข้าง AHAPBookCharacter/GameMode/PlayerController ของเทมเพลต
+  Content/ThirdPerson/  แผนที่และ Blueprint ของ Template Third Person (ใช้ตั้งแต่บทที่ 7)
+  Source/HAPBook/       คลาส C++ ของงานเขียน (ที่ราก) เคียงข้าง AHAPBookCharacter/GameMode/PlayerController ของ Template
   */Variant_*/          ตัวอย่างแนวเกมของ Epic (Combat, Platforming, SideScrolling) ไม่ใช้ในงานเขียน
 docs/chNN.md     คู่มือประจำบท
 ```
 
 ทุกบทที่มีโค้ดมีแผนที่ของตนเอง `L_ChNN` ซึ่งวาง Actor สาธิตของบทนั้นไว้แล้ว คู่มือประจำบทจึงเริ่มจากการเปิดแผนที่แล้วกด Play โดยไม่มีขั้นตอนวาง Actor แผนที่ของบทในส่วนปัญญาประดิษฐ์ (บทที่ 7–13) เป็นสำเนาของแผนที่บทก่อนหน้าบวกสิ่งที่บทนั้นเพิ่ม ส่วน `L_Book` คงเป็นพื้นเปล่าเสมอ
 
-`ch01-cpp/` เป็นโซลูชันเอกเทศสำหรับบทที่ 1 เท่านั้นและไม่ถูกนำไปใช้ต่อ งานบน Unreal Engine เริ่มที่ `HAPBook/` ณ แท็ก `ch02`
+`ch01-cpp/` เป็น Solution เอกเทศสำหรับบทที่ 1 เท่านั้นและไม่ถูกนำไปใช้ต่อ งานบน Unreal Engine เริ่มที่ `HAPBook/` ณ แท็ก `ch02`
 
 ## หลักการ: หนึ่งโปรเจกต์ที่เติบโตทีละบท
 
-`HAPBook/` คือโปรเจกต์ที่สร้างจาก Template **Third Person (C++)** ของ Epic ใน Unreal Engine 5.8 ตามที่ได้จากหน้าต่างสร้างโปรเจกต์โดยไม่ดัดแปลง (ไม่มี Starter Content) เพิ่มเพียงพื้นเปล่า `Content/Maps/L_Book` และแต่ละบทคือรากฐานของบทถัดไป Template ให้คลาส C++ สามคลาสที่รากของโมดูล ได้แก่ `AHAPBookCharacter`, `AHAPBookGameMode` และ `AHAPBookPlayerController` พร้อม Blueprint ลูกของแต่ละคลาสใน `Content/ThirdPerson/Blueprints/` (`BP_ThirdPersonCharacter`, `BP_ThirdPersonGameMode`, `BP_ThirdPersonPlayerController`) และแผนที่ `Content/ThirdPerson/Lvl_ThirdPerson` ซึ่งเป็นตัวอย่างของแนวทาง Hybrid Architecture Pattern ในตัวเอง (คลาสฐานเป็น C++ คลาสลูกเป็น Blueprint) เนื้อหาส่วนนี้ใช้ตั้งแต่ส่วนที่ 3 (บทที่ 7) เป็นต้นไปเพื่อให้มีตัวละครที่ควบคุมได้ ส่วนบทที่ 2–6 ใช้พื้นเปล่า `L_Book` เท่านั้น โฟลเดอร์ `Source/HAPBook/Variant_Combat/`, `Variant_Platforming/`, `Variant_SideScrolling/` และ `Content/Variant_*/` เป็นตัวอย่างแนวเกมสามแบบที่ Epic แถมมากับ Template ไม่ได้ใช้ในงานเขียน คลาสของงานเขียนทุกคลาสอยู่ที่รากของ `Source/HAPBook/` เคียงข้างคลาสของ Template ระบบปัญญาประดิษฐ์ในงานเขียนถูกสร้างขึ้นทีละส่วนตั้งแต่บทที่ 7 ถึงบทที่ 13 บนโปรเจกต์เดียวกันนี้
+`HAPBook/` คือโปรเจกต์ที่สร้างจาก Template **Third Person (C++)** ของ Epic ใน Unreal Engine 5.8 ตามที่ได้จากหน้าต่างสร้างโปรเจกต์โดยไม่ดัดแปลง (ไม่มี Starter Content) เพิ่มเพียงพื้นเปล่า `Content/Maps/L_Book` และแต่ละบทคือรากฐานของบทถัดไป Template ให้คลาส C++ สามคลาสที่รากของโมดูล ได้แก่ `AHAPBookCharacter`, `AHAPBookGameMode` และ `AHAPBookPlayerController` พร้อม Blueprint ลูกของแต่ละคลาสใน `Content/ThirdPerson/Blueprints/` (`BP_ThirdPersonCharacter`, `BP_ThirdPersonGameMode`, `BP_ThirdPersonPlayerController`) และแผนที่ `Content/ThirdPerson/Lvl_ThirdPerson` ซึ่งเป็นตัวอย่างของสถาปัตยกรรมแบบผสมผสาน (Hybrid Architecture Pattern) ในตัวเอง (คลาสฐานเป็น C++ คลาสลูกเป็น Blueprint) เนื้อหาส่วนนี้ใช้ตั้งแต่ส่วนที่ 3 (บทที่ 7) เป็นต้นไปเพื่อให้มีตัวละครที่ควบคุมได้ ส่วนบทที่ 2–6 ใช้พื้นเปล่า `L_Book` เท่านั้น โฟลเดอร์ `Source/HAPBook/Variant_Combat/`, `Variant_Platforming/`, `Variant_SideScrolling/` และ `Content/Variant_*/` เป็นตัวอย่างแนวเกมสามแบบที่ Epic แถมมากับ Template ไม่ได้ใช้ในงานเขียน คลาสของงานเขียนทุกคลาสอยู่ที่รากของ `Source/HAPBook/` เคียงข้างคลาสของ Template ระบบปัญญาประดิษฐ์ในงานเขียนถูกสร้างขึ้นทีละส่วนตั้งแต่บทที่ 7 ถึงบทที่ 13 บนโปรเจกต์เดียวกันนี้
 
 สถานะของโปรเจกต์เมื่อสิ้นสุดแต่ละบทคือแท็ก git ชื่อ `chNN` ซึ่งรับได้สองรูปแบบ
 

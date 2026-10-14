@@ -30,7 +30,7 @@ public:
 	TObjectPtr<USceneComponent> Root;
 
 #if WITH_EDITORONLY_DATA
-	// ไอคอนใน Viewport ของตัวแก้ไขเท่านั้น: ให้มองเห็น Spawner ที่วางไว้ ไม่มีผลขณะเล่น
+	// ไอคอนใน Viewport ของ Editor เท่านั้น: ให้มองเห็น Spawner ที่วางไว้ ไม่มีผลขณะเล่น
 	UPROPERTY(VisibleAnywhere, Category = "Spawner")
 	TObjectPtr<UBillboardComponent> EditorIcon;
 #endif

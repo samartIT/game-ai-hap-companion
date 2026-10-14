@@ -14,7 +14,7 @@
 #include "Perception/AISense_Damage.h"         // บทที่ 13
 #include "Kismet/GameplayStatics.h"            // GetPlayerPawn (บรรทัด Teams เท่านั้น)
 #include "TimerManager.h"
-#include "DrawDebugHelpers.h"                  // บทที่ 12: ทรงกลมดีบัก (เครื่องมือวัด)
+#include "DrawDebugHelpers.h"                  // บทที่ 12: ทรงกลม Debug (เครื่องมือวัด)
 
 const FName AEnemyAIController::PatrolLocationKey(TEXT("PatrolLocation"));
 const FName AEnemyAIController::AlertedKey(TEXT("Alerted"));
@@ -456,7 +456,7 @@ void AEnemyAIController::DrawSearchLocation(
 	const FVector& Location) const
 {
 #if ENABLE_DRAW_DEBUG
-	// เครื่องมือวัดเท่านั้น: Shipping และ Test ไม่วาดดีบัก
+	// เครื่องมือวัดเท่านั้น: Shipping และ Test ไม่วาด Debug
 	DrawDebugSphere(GetWorld(), Location, SearchSphereRadius, 12,
 		FColor::Orange, false, SearchSphereSeconds);
 #endif

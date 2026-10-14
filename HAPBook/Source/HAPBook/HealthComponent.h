@@ -13,7 +13,7 @@
 class UDamageType;
 class AController;
 
-// Delegate แบบ Dynamic Multicast: Blueprint ผูกได้ (BlueprintAssignable) และผู้ฟังหลายรายรับพร้อมกันได้
+// Delegate แบบ Dynamic Multicast: Blueprint ผูกได้ (BlueprintAssignable) และตัวรับฟังหลายรายรับพร้อมกันได้
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChangedSignature, float, NewHealth, float, MaxHealth);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeathSignature);
 

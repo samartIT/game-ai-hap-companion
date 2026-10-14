@@ -1,4 +1,4 @@
-// บทที่ 12 — Context ของตัวช่วยสาธิตในตัวแก้ไข (Editor Teaching Aid)
+// บทที่ 12 — Context ของตัวช่วยสาธิตใน Editor (Editor Teaching Aid)
 // คืน Actor ตัวแรกที่ติด Tag "EQSTeachingAid" (TP_Target ใน L_Ch12)
 // ใช้กับ EQS Testing Pawn เท่านั้น: เป้าหมายของศัตรูขณะเล่นคือสิ่งที่
 // ศัตรูรับรู้ได้ (EnvQueryContext_PerceivedTarget) ซึ่งสืบทอดคลาสนี้
@@ -31,7 +31,7 @@ public:
 
 protected:
 	// Blackboard ของ AI ที่เป็น Querier (Pawn หรือ Controller)
-	// nullptr = Querier ไม่ใช่ AI เช่น Testing Pawn ในตัวแก้ไข
+	// nullptr = Querier ไม่ใช่ AI เช่น Testing Pawn ใน Editor
 	static const UBlackboardComponent* FindQuerierBlackboard(
 		const FEnvQueryInstance& QueryInstance);
 };

@@ -30,7 +30,7 @@ public:
 
 int main()
 {
-    // พอยน์เตอร์ของคลาสฐานชี้ไปยังวัตถุของคลาสลูก
+    // Pointer ของคลาสฐานชี้ไปยังวัตถุของคลาสลูก
     Shape* s1 = new Circle();
     Shape* s2 = new Square();
 
