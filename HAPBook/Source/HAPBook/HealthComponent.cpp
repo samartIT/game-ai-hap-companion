@@ -58,7 +58,7 @@ void UHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage, c
 	// ชั้นสะพานเชื่อม: ตัวรับฟังทุกราย (C++ ของ AEnemyCharacter หรือ Event Graph ของ BP_ThirdPersonCharacter) รับค่าเดียวกัน
 	OnHealthChanged.Broadcast(CurrentHealth, MaxHealth);
 
-	// บทที่ 13: รายงานเหตุนี้ต่อระบบรับรู้ (เอนจิ้นไม่รายงานเอง)
+	// บทที่ 13: รายงานเหตุนี้ต่อ Perception (เอนจิ้นไม่รายงานเอง)
 	// ผู้กระทำ = Pawn ของ Instigator หากมี มิฉะนั้น Damage Causer
 	AActor* Attacker = DamageCauser;
 	if (InstigatedBy != nullptr

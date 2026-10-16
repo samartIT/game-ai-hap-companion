@@ -2,7 +2,7 @@
 // Component เดียวกันนี้แนบกับ AEnemyCharacter ด้วย CreateDefaultSubobject (C++) และกับ BP_ThirdPersonCharacter ด้วย Add Component (Blueprint)
 // รับความเสียหายจาก Delegate OnTakeAnyDamage ของเจ้าของ (ปลายทางของ ApplyDamage -> TakeDamage) แล้วส่งต่อเป็น Delegate ที่ Blueprint ผูกได้
 // ชั้นสะพานเชื่อมของ HAP ในทางปฏิบัติ: UPROPERTY ที่ปรับใน Editor + Delegate แบบ BlueprintAssignable ที่ผูกใน Event Graph
-// บทที่ 13 เพิ่ม: รายงานเหตุความเสียหายทุกครั้งต่อระบบรับรู้ (UAISense_Damage::ReportDamageEvent) และ IsActorDead()
+// บทที่ 13 เพิ่ม: รายงานเหตุความเสียหายทุกครั้งต่อ Perception (UAISense_Damage::ReportDamageEvent) และ IsActorDead()
 
 #pragma once
 

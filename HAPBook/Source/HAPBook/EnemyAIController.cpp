@@ -192,7 +192,7 @@ void AEnemyAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus St
 
 	const TSubclassOf<UAISense> SenseClass = UAIPerceptionSystem::GetSenseClassForStimulus(this, Stimulus);
 
-	// นโยบายของตัวรับ: ระบบรับรู้รายงานทุกสิ่งที่ผ่าน Config แต่ AI รู้เฉพาะสิ่งที่ตัวรับเลือกเขียน
+	// นโยบายของตัวรับ: Perception รายงานทุกสิ่งที่ผ่าน Config แต่ AI รู้เฉพาะสิ่งที่ตัวรับเลือกเขียน
 	// เขียนความรู้ลง Blackboard เฉพาะเมื่อความสัมพันธ์ต่อ Actor เป็น Hostile (ถามสดผ่าน Attitude Solver ของงานเขียนนี้ทุกครั้ง)
 	const bool bHostile = GetTeamAttitudeTowards(*Actor) == ETeamAttitude::Hostile;
 

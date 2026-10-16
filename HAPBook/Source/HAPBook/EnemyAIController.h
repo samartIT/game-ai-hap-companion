@@ -6,7 +6,7 @@
 // บทที่ 11 เพิ่ม (เฉพาะสิ่งที่ Blueprint ทำไม่ได้หรือสิ่งที่ถือนโยบาย): ฝ่าย (Team 2 + Attitude Solver),
 //                ตัวรับสิ่งเร้า OnTargetPerceptionUpdated ที่เขียนความรู้ลง Blackboard เฉพาะเมื่อความสัมพันธ์เป็น Hostile
 //                และสวิตช์เปิด/ปิด Listener ตาม bPerceptionEnabled ของร่าง
-//                ระบบรับรู้เอง (Component + Sense Sight/Hearing + ค่าของ Sense) อยู่ใน BP_EnemyAIController ซึ่งเป็น Blueprint ลูกของคลาสนี้
+//                Perception เอง (Component + Sense Sight/Hearing + ค่าของ Sense) อยู่ใน BP_EnemyAIController ซึ่งเป็น Blueprint ลูกของคลาสนี้
 // บทที่ 12 เพิ่ม: คีย์ SearchLocation (ผลของ EQS_SearchHidden), ผู้สังเกตคีย์นี้พร้อมทรงกลม Debug (เครื่องมือวัด)
 //                และการจำแนกการมาถึงจุดซ่อน — Query เองรันโดย Run EQS Query ใน BT_Enemy_EQS ไม่ใช่โดยคลาสนี้
 // บทที่ 13 เพิ่ม (ใน OnTargetPerceptionUpdated เท่านั้น): สาขาของ Sense Damage (ผู้กระทำที่เป็น Hostile กลายเป็นเป้าหมาย)
@@ -95,7 +95,7 @@ private:
 	// เขียนตำแหน่งของ PatrolPoints[CurrentPatrolIndex] ลง Blackboard
 	void WriteCurrentPatrolLocation();
 
-	// ---- บทที่ 11: ระบบรับรู้ (Component และ Sense อยู่ใน BP_EnemyAIController) ----
+	// ---- บทที่ 11: Perception (Component และ Sense อยู่ใน BP_EnemyAIController) ----
 
 	// เปิด: ผูก OnTargetPerceptionUpdated และยืนยันการลงทะเบียน Listener; ปิด: ถอดการผูกและถอน Listener ออกจาก AIPerceptionSystem
 	// Component ที่เพิ่มใน Blueprint ใส่ตัวเองลงช่อง PerceptionComponent ของ AAIController ใน OnRegister ก่อน Possess จึงหาได้ด้วย GetAIPerceptionComponent()
