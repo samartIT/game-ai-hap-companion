@@ -46,7 +46,7 @@ docs/chNN.md     คู่มือประจำบท
 
 สถานะของ Project เมื่อสิ้นสุดแต่ละบทคือ git Tag ชื่อ `chNN` ซึ่งรับได้สองรูปแบบ
 
-- **zip File ของ Tag (วิธีหลัก ไม่ต้องใช้ git):** ดาวน์โหลด zip File ของ Tag `chNN` จากหน้า Releases (หรือ Tags) ของ repository — GitHub สร้าง File นี้ให้อัตโนมัติ ชื่อ File เป็น `<ชื่อ repository>-chNN.zip` แตก File แล้วเปิด Project ผู้อ่านจะอยู่ที่สถานะเดียวกับผู้อ่านที่เพิ่งจบบทนั้น
+- **zip File ของ Tag (วิธีหลัก ไม่ต้องใช้ git):** ดาวน์โหลด zip File ของ Tag `chNN` จากหน้า Releases (หรือ Tags) ของ repository (`https://github.com/samartIT/game-ai-hap-companion`) — GitHub สร้าง File นี้ให้อัตโนมัติ ชื่อ File เป็น `game-ai-hap-companion-chNN.zip` แตก File แล้วได้ Folder `game-ai-hap-companion-chNN/` ซึ่งมี `HAPBook/` อยู่ภายใน แล้วเปิด Project ผู้อ่านจะอยู่ที่สถานะเดียวกับผู้อ่านที่เพิ่งจบบทนั้น
 - **git tag ชื่อเดียวกัน (ทางเลือกสำหรับผู้ใช้ git):** `git checkout ch07` ให้ผลเช่นเดียวกับ zip ของบทที่ 7 และ `git diff ch07 ch08` แสดงทุกบรรทัดที่บทที่ 8 เพิ่มเข้ามา
 
 บทที่เป็นแนวคิดล้วน (บทที่ 3, 15 และ 16) ไม่มี Code ใน Companion
