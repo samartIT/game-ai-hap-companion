@@ -1,0 +1,33 @@
+# ===== Unreal Engine project (HAPBook/) =====
+# Everything the engine regenerates. Sources, Content, Config, .uproject and .vsconfig stay.
+**/Binaries/
+**/Intermediate/
+**/Saved/
+**/DerivedDataCache/
+**/Build/Receipts/
+**/.vs/
+*.sln
+*.slnx
+# ...except the shipped ch01 solution (Rider opens it; not engine-generated)
+!ch01-cpp/Ch01.sln
+*.vcxproj.user
+ch01-cpp/build/
+ch01-cpp/x64/
+*.suo
+*.opensdf
+*.sdf
+*.VC.db
+*.VC.opendb
+*.xcodeproj
+*.xcworkspace
+
+# ===== JetBrains Rider =====
+.idea/
+*.DotSettings.user
+
+# ===== Windows / editors =====
+Thumbs.db
+desktop.ini
+*~
+*.swp
+.DS_Store
