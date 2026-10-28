@@ -16,12 +16,12 @@ class HAPBOOK_API AGcDemoActor : public AActor
 public:
 	AGcDemoActor();
 
-	// การอ้างอิงอย่างเข้ม: UPROPERTY + TObjectPtr (บทที่ 2 หัวข้อ TObjectPtr) ทำให้ GC เห็นและรักษาวัตถุไว้
+	// Strong Reference: UPROPERTY + TObjectPtr (บทที่ 2 หัวข้อ TObjectPtr) ทำให้ GC เห็นและรักษาวัตถุไว้
 	UPROPERTY(VisibleAnywhere, Category = "GC")
 	TObjectPtr<UGcDemoData> TrackedData;
 
-	// การอ้างอิงอย่างอ่อน: ไม่มี UPROPERTY และไม่รั้งวัตถุไว้ แต่ตรวจสอบได้อย่างปลอดภัยด้วย IsValid()
-	// ไม่มีที่ใดถือการอ้างอิงอย่างเข้มไปยังวัตถุนี้ GC จึงเก็บกวาดได้ในรอบถัดไป
+	// Weak Reference: ไม่มี UPROPERTY และไม่รั้งวัตถุไว้ แต่ตรวจสอบได้อย่างปลอดภัยด้วย IsValid()
+	// ไม่มีที่ใดถือ Strong Reference ไปยังวัตถุนี้ GC จึงเก็บกวาดได้ในรอบถัดไป
 	TWeakObjectPtr<UGcDemoData> UntrackedWatcher;
 
 	// หน่วงเวลาก่อนรายงานผลหลังการเก็บกวาด (GC ทำงานในเฟรมถัดไปหลัง ForceGarbageCollection)

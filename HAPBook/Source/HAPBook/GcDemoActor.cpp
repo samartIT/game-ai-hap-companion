@@ -19,8 +19,8 @@ void AGcDemoActor::BeginPlay()
 	TrackedData = NewObject<UGcDemoData>(this);
 	TrackedData->Tag = 1;
 
-	// วัตถุที่ 2: สร้างแล้วเก็บไว้เฉพาะใน TWeakObjectPtr -> ไม่มีการอ้างอิงอย่างเข้มที่ใดเลย
-	// Untracked เป็นตัวแปรภายในฟังก์ชัน (Raw Pointer ตามกฎของบทที่ 2) และสิ้นอายุเมื่อออกจาก BeginPlay
+	// วัตถุที่ 2: สร้างแล้วเก็บไว้เฉพาะใน TWeakObjectPtr -> ไม่มี Strong Reference ที่ใดเลย
+	// Untracked เป็นตัวแปรเฉพาะที่ (Raw Pointer ตามกฎของบทที่ 2) ไม่มีตัวตนเมื่อออกจาก BeginPlay
 	UGcDemoData* Untracked = NewObject<UGcDemoData>(this);
 	Untracked->Tag = 2;
 	UntrackedWatcher = Untracked;
