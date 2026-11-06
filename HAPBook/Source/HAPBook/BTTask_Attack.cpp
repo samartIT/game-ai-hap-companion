@@ -67,7 +67,7 @@ EBTNodeResult::Type UBTTask_Attack::ExecuteTask(
 	const FRotator Facing(0.0f, ToTarget.Rotation().Yaw, 0.0f);
 	Self->SetActorRotation(Facing);
 
-	// ท่อความเสียหายของบทที่ 10: Instigator = Controller
+	// Damage Pipeline ของบทที่ 10: Instigator = Controller
 	// (ผู้รับผิดชอบคำสั่ง), Damage Causer = ร่าง (ผู้ลงมือ)
 	UGameplayStatics::ApplyDamage(Target, Damage, AI, Self,
 		DamageTypeClass);
