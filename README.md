@@ -1,65 +1,60 @@
 # ชุดโค้ดประกอบ — สถาปัตยกรรมปัญญาประดิษฐ์สำหรับเกมด้วย C++ และ Blueprint ใน Unreal Engine
 
-ชุดโค้ดประกอบ (Companion) นี้บรรจุโค้ด (Code) ฉบับสมบูรณ์ที่ทำงานได้จริงของทุกบทที่มีการลงมือปฏิบัติในงานเขียน ไม่มีส่วนที่ผู้อ่านต้องเดาหรือเติมเอง จัดทำขึ้นสำหรับผู้อ่านที่ต้องการลงมือทำตามไปพร้อมกับการอ่าน และสำหรับผู้อ่านที่ติดขัดระหว่างทางและต้องการสถานะที่ทำงานได้ถูกต้องไว้เปรียบเทียบกับงานของตนเอง
+ชุดโค้ดประกอบ (Companion) นี้คือโค้ด (Code) ของทุกบทที่มีการลงมือปฏิบัติในงานเขียนฉบับนี้ ซึ่งจัดทำขึ้นสำหรับรายวิชา 06016448 การพัฒนาเกมขั้นสูงด้วยเกมเอนจิ้น (Advanced Game Development with Game Engine) คณะเทคโนโลยีสารสนเทศ สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง Code ทุกไฟล์ (File) ตรงกับตัวอย่างชุดคำสั่งในงานเขียนฉบับนี้ และให้ผลลัพธ์ตรงกับที่งานเขียนฉบับนี้แสดง Companion เก็บสถานะสุดท้ายของแต่ละบท ผู้อ่านที่ต้องการสร้างทีละขั้นให้พิมพ์ตัวอย่างชุดคำสั่งตามลำดับที่บทแสดง
 
 ## ความต้องการของระบบ
 
 - Windows 10 หรือ Windows 11
-- Unreal Engine 5.8 (ตั้งแต่บทที่ 2 เป็นต้นไป)
-- JetBrains Rider 2026.x หรือใหม่กว่า (ใช้ได้โดยไม่มีค่าใช้จ่ายสำหรับงานที่ไม่ใช่เชิงพาณิชย์)
-- Microsoft Visual C++ Build Tools (Build Tools for Visual Studio) พร้อมเวิร์กโหลด (Workload) "Desktop development with C++" และ ".NET desktop build tools" (ขั้นตอนอยู่ในภาคผนวก ก ของงานเขียน)
-- .NET runtime รุ่นที่ UnrealBuildTool ของ UE 5.8 ต้องการ ตรวจสอบรุ่นที่ต้องการได้จากค่า `framework.version` ในไฟล์ (File) `Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.runtimeconfig.json` ของเอนจิ้น (Engine) แล้วเทียบกับผลของคำสั่ง `dotnet --list-runtimes` หากไม่มีรุ่นหลักที่ตรงกัน ให้ดูวิธีแก้ในหัวข้อ "ปัญหาที่พบบ่อย" ของ `docs/ch02.md`
+- Unreal Engine 5.8 (ติดตั้งผ่าน Epic Games Launcher)
+- JetBrains Rider 2026.x หรือใหม่กว่า
+- Build Tools for Visual Studio พร้อมเวิร์กโหลด (Workload) "Desktop development with C++" และ ".NET desktop build tools" (ขั้นตอนอยู่ในภาคผนวก ก ของงานเขียนฉบับนี้)
+- .NET runtime รุ่นที่ UnrealBuildTool ของ Unreal Engine 5.8 ต้องการ (วิธีตรวจและวิธีแก้อยู่ในหัวข้อ "ปัญหาที่พบบ่อย" ของ `docs/ch02.md`)
 
-การเปิดโปรเจกต์ (Project) Unreal ทำโดยเปิด File `HAPBook.uproject` ด้วย Rider โดยตรง ไฟล์ Solution (Solution File) ที่ Engine สร้างขึ้นเป็นทางเลือกสำรองเท่านั้น
+Companion ได้รับการทดสอบบนสภาพแวดล้อมนี้เท่านั้น ซึ่งเป็นสภาพแวดล้อมเดียวกับที่ใช้ทดสอบเนื้อหาในงานเขียนฉบับนี้
 
-Companion ทั้งหมดได้รับการทดสอบบนสภาพแวดล้อมข้างต้นเท่านั้น ซึ่งเป็นสภาพแวดล้อมเดียวกับที่ใช้ทดสอบเนื้อหาในงานเขียน
+## วิธีใช้
 
-## จุดเริ่มต้น
+สถานะของโปรเจกต์ (Project) เมื่อสิ้นสุดแต่ละบทคือแท็ก (Tag) ชื่อ `chNN` ของ git รับได้สองทาง
 
-ผู้อ่านเริ่มจากคู่มือประจำบทใน `docs/chNN.md` เสมอ คู่มือแต่ละบทระบุขั้นตอนการเปิดและการรัน (Run) จุดตรวจสอบผลลัพธ์ที่ควรได้ และจุดสะดุดที่พบบ่อยพร้อมแนวทางแก้ไข
+1. zip File ของ Tag (ไม่ต้องใช้ git): ดาวน์โหลด `game-ai-hap-companion-chNN.zip` จากหน้า Releases หรือ Tags ของ repository นี้ แตก File แล้วได้โฟลเดอร์ (Folder) `game-ai-hap-companion-chNN/` ซึ่งมี `HAPBook/` อยู่ภายใน
+2. git: `git clone https://github.com/samartIT/game-ai-hap-companion` แล้ว `git checkout chNN` ให้ผลเดียวกับ zip ของบทนั้น และ `git diff ch07 ch08` แสดงทุกบรรทัดที่บทที่ 8 เพิ่ม
 
-| บท | Code | คู่มือ |
-|---|---|---|
-| 1 | `ch01-cpp/Ch01.sln` (Solution สำหรับ Rider ประกอบด้วย Console Project 8 Project) | `docs/ch01.md` |
-| 2 เป็นต้นไป | `HAPBook/` (Project UE 5.8 เปิดด้วย `HAPBook.uproject`) | `docs/ch02.md`, `docs/ch03.md`, … |
+จากนั้นเปิด File `HAPBook/HAPBook.uproject` ด้วย Rider โดยตรง สั่ง Build แล้วเปิด Unreal Editor ขั้นตอนต่อจากนั้นอยู่ในคู่มือประจำบท บทที่ 1 ไม่ใช้ Unreal Engine: เปิด `ch01-cpp/Ch01.sln` ด้วย Rider
 
-## โครงสร้าง
+## บทและ Tag
 
-```
-ch01-cpp/        บทที่ 1: C++ มาตรฐาน เปิดด้วย Rider ผ่าน Ch01.sln (ยังไม่ใช้ Unreal Engine)
-HAPBook/         บทที่ 2 เป็นต้นไป: โปรเจกต์ Unreal Engine 5.8 หนึ่งโปรเจกต์ที่เติบโตทีละบท
-  Content/Maps/L_ChNN   แผนที่ประจำบท: Actor สาธิตของบทนั้นวางไว้แล้ว เปิดแล้วกด Play ได้ทันที
-  Content/Maps/L_Book   Level เปล่าสำหรับใช้เป็นแม่แบบ ไม่มี Actor สาธิต
-  Content/ThirdPerson/  แผนที่และ Blueprint ของ Template Third Person (ใช้ตั้งแต่บทที่ 7)
-  Source/HAPBook/       คลาส C++ ของงานเขียน (ที่ราก) เคียงข้าง AHAPBookCharacter/GameMode/PlayerController ของ Template
-  */Variant_*/          ตัวอย่างแนวเกมของ Epic (Combat, Platforming, SideScrolling) ไม่ใช้ในงานเขียน
-docs/chNN.md     คู่มือประจำบท
-```
+| บท | ชื่อบท | Code | คู่มือ |
+|---|---|---|---|
+| 1 | พื้นฐานภาษา C++ ที่จำเป็นสำหรับ Unreal Engine | `ch01-cpp/Ch01.sln` (Solution ของ Rider, 8 Project) | `docs/ch01.md` |
+| 2 | ข้อกำหนดในการเขียนโปรแกรมภาษา C++ ใน Unreal Engine | Tag `ch02` | `docs/ch02.md` |
+| 3 | สถาปัตยกรรมแบบผสมผสานและกระบวนการพัฒนาซอฟต์แวร์ใน Unreal Engine | ไม่มี Code (บทเชิงแนวคิด) | `docs/ch03.md` |
+| 4 | ระบบวัตถุของ Unreal Engine | Tag `ch04` | `docs/ch04.md` |
+| 5 | กระบวนการทำงานแบบผสมผสาน | Tag `ch05` | `docs/ch05.md` |
+| 6 | คณิตศาสตร์และฟิสิกส์ประยุกต์ | Tag `ch06` | `docs/ch06.md` |
+| 7 | สถาปัตยกรรมปัญญาประดิษฐ์พื้นฐาน | Tag `ch07` | `docs/ch07.md` |
+| 8 | พฤติกรรมและการตัดสินใจขั้นสูง | Tag `ch08` | `docs/ch08.md` |
+| 9 | การสร้าง Node แบบผสมผสาน | Tag `ch09` | `docs/ch09.md` |
+| 10 | สถาปัตยกรรมตัวละครและระบบความเสียหาย | Tag `ch10` | `docs/ch10.md` |
+| 11 | การจำแนกฝ่ายและการรับรู้ภัยคุกคาม | Tag `ch11` | `docs/ch11.md` |
+| 12 | ระบบสืบค้นสภาพแวดล้อม | Tag `ch12` | `docs/ch12.md` |
+| 13 | การบูรณาการระบบต่อสู้ของ AI | Tag `ch13` | `docs/ch13.md` |
+| 14 | การวิเคราะห์และประเมินผลประสิทธิภาพเชิงปริมาณ | Tag `ch14` (ชุดทดสอบ และ `HAPBook/Tools/`) | `docs/ch14.md` |
+| 15 | การสังเคราะห์องค์ความรู้ว่าด้วยสถาปัตยกรรมแบบผสมผสาน | ไม่มี Code | — |
+| 16 | บทสรุปและทิศทางในอนาคต | ไม่มี Code | — |
 
-- ทุกบทที่มี Code มีแผนที่ของตนเอง `L_ChNN` ซึ่งวาง Actor สาธิตของบทนั้นไว้แล้ว
-- คู่มือประจำบทจึงเริ่มจากการเปิดแผนที่แล้วกด Play โดยไม่มีขั้นตอนวาง Actor
-- แผนที่ของบทในส่วนปัญญาประดิษฐ์ (Artificial Intelligence: AI; บทที่ 7–13) เป็นสำเนาของแผนที่บทก่อนหน้าบวกสิ่งที่บทนั้นเพิ่ม
-- ส่วน `L_Book` คงเป็นLevel เปล่าเสมอ
+- Tag `chNN` คือสถานะของ `HAPBook/` เมื่อสิ้นสุดบทที่ NN และต่อยอดจาก Tag ก่อนหน้า
+- แผนที่ `Content/Maps/L_ChNN` วาง Actor ของบทนั้นไว้แล้ว เปิดแล้วกด Play ได้ทันที
+- คลาส (Class) C++ ของงานเขียนฉบับนี้อยู่ที่รากของ `Source/HAPBook/` เคียงข้าง Class ของแม่แบบ (Template) Third Person ของ Epic (`AHAPBookCharacter`, `AHAPBookGameMode`, `AHAPBookPlayerController`)
+- `L_Book` เป็น Level เปล่า และ `*/Variant_*/` เป็นตัวอย่างแนวเกมของ Epic ที่มากับ Template ไม่ได้ใช้ในงานเขียนฉบับนี้
 
-`ch01-cpp/` เป็น Solution เอกเทศสำหรับบทที่ 1 เท่านั้นและไม่ถูกนำไปใช้ต่อ งานบน Unreal Engine เริ่มที่ `HAPBook/` ณ แท็ก (Tag) `ch02`
+## คู่มือประจำบท
 
-## หลักการ: หนึ่งโปรเจกต์ที่เติบโตทีละบท
+คู่มือ `docs/chNN.md` ของแต่ละบทระบุสถานะเริ่มต้นของ Project ขั้นตอนการเปิดและการรัน (Run) จุดตรวจสอบผลลัพธ์ที่ควรได้ และปัญหาที่พบบ่อยพร้อมวิธีแก้ ผู้อ่านเริ่มจากคู่มือของบทเสมอ
 
-- `HAPBook/` คือ Project ที่สร้างจากแม่แบบ (Template) Third Person (C++) ของ Epic ใน Unreal Engine 5.8 ตามที่ได้จากหน้าต่างสร้าง Project โดยไม่ดัดแปลง (ไม่มี Starter Content)
-- เพิ่มเพียงLevel เปล่า `Content/Maps/L_Book` และแต่ละบทคือรากฐานของบทถัดไป
-- Template ให้คลาส (Class) C++ สาม Class ที่รากของโมดูล (Module) ได้แก่ `AHAPBookCharacter`, `AHAPBookGameMode` และ `AHAPBookPlayerController` พร้อม Blueprint ลูกของแต่ละ Class ใน `Content/ThirdPerson/Blueprints/` (`BP_ThirdPersonCharacter`, `BP_ThirdPersonGameMode`, `BP_ThirdPersonPlayerController`) และแผนที่ `Content/ThirdPerson/Lvl_ThirdPerson` ซึ่งเป็นตัวอย่างของสถาปัตยกรรมแบบผสมผสาน (Hybrid Architecture Pattern: HAP) ในตัวเอง (คลาสฐาน (Base Class) เป็น C++ คลาสลูก (Derived Class) เป็น Blueprint)
-- เนื้อหาส่วนนี้ใช้ตั้งแต่ส่วนที่ 3 (บทที่ 7) เป็นต้นไปเพื่อให้มีตัวละคร (Character) ที่ควบคุมได้ ส่วนบทที่ 2–6 ใช้Level เปล่า `L_Book` เท่านั้น
-- โฟลเดอร์ (Folder) `Source/HAPBook/Variant_Combat/`, `Variant_Platforming/`, `Variant_SideScrolling/` และ `Content/Variant_*/` เป็นตัวอย่างแนวเกมสามแบบที่ Epic แถมมากับ Template ไม่ได้ใช้ในงานเขียน
-- Class ของงานเขียนทุก Class อยู่ที่รากของ `Source/HAPBook/` เคียงข้าง Class ของ Template
-- ระบบ AI ในงานเขียนถูกสร้างขึ้นทีละส่วนตั้งแต่บทที่ 7 ถึงบทที่ 13 บน Project เดียวกันนี้
+## สัญญาอนุญาต
 
-สถานะของ Project เมื่อสิ้นสุดแต่ละบทคือ git Tag ชื่อ `chNN` ซึ่งรับได้สองรูปแบบ
+Code ใน repository นี้เผยแพร่ภายใต้สัญญาอนุญาต MIT (ดู `LICENSE`) ข้อผิดพลาดหรือความไม่ตรงกับงานเขียนฉบับนี้แจ้งได้ทางหน้า Issues ของ repository นี้
 
-- zip File ของ Tag (วิธีหลัก ไม่ต้องใช้ git): ดาวน์โหลด zip File ของ Tag `chNN` จากหน้า Releases (หรือ Tags) ของ repository (`https://github.com/samartIT/game-ai-hap-companion`) — GitHub สร้าง File นี้ให้อัตโนมัติ ชื่อ File เป็น `game-ai-hap-companion-chNN.zip` แตก File แล้วได้ Folder `game-ai-hap-companion-chNN/` ซึ่งมี `HAPBook/` อยู่ภายใน แล้วเปิด Project ผู้อ่านจะอยู่ที่สถานะเดียวกับผู้อ่านที่เพิ่งจบบทนั้น
-- git tag ชื่อเดียวกัน (ทางเลือกสำหรับผู้ใช้ git): `git checkout ch07` ให้ผลเช่นเดียวกับ zip ของบทที่ 7 และ `git diff ch07 ch08` แสดงทุกบรรทัดที่บทที่ 8 เพิ่มเข้ามา
-
-บทที่เป็นแนวคิดล้วน (บทที่ 3, 15 และ 16) ไม่มี Code ใน Companion
-
-## เกี่ยวกับโค้ดชุดนี้
-
-Code ทุก File ตรงกับตัวอย่างชุดคำสั่งในงานเขียน และให้ผลลัพธ์ตรงกับที่งานเขียนแสดง หากพบความไม่ตรงกัน กรุณาแจ้งผ่าน Issues ของ repository นี้
+สามารถ หมุดและ
+คณะเทคโนโลยีสารสนเทศ
+สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง
